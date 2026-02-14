@@ -23,7 +23,7 @@ export function Dashboard() {
       <div style={styles.header} className="page-header">
         <div>
           <h1 style={styles.title}>Dashboard</h1>
-          <p style={styles.subtitle}>Here's what's happening with your AI workforce today</p>
+          <p style={styles.subtitle}>Here's what your AI workers are up to today</p>
         </div>
         <div style={styles.headerRight}>
           <div style={styles.liveIndicator}>

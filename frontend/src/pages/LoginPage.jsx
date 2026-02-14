@@ -19,7 +19,7 @@ export function LoginPage() {
       await login(email, password);
       navigate("/");
     } catch {
-      setError("Invalid credentials. Try the demo or use demo@workforce.ai / demo1234.");
+      setError("Invalid credentials. Try the demo or use demo@synthetiks.com / demo1234.");
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export function LoginPage() {
             <div style={styles.logoIcon}>
               <Zap size={24} color="#4f6ef7" />
             </div>
-            <span style={styles.logoText}>Workforce.AI</span>
+            <span style={styles.logoText}>Synthetiks</span>
           </div>
           <h1 style={styles.heroTitle}>Hire AI workers for your business</h1>
           <p style={styles.heroSub}>
@@ -77,7 +77,7 @@ export function LoginPage() {
         <div style={styles.formCard} className="animate-fadeInUp">
           <div style={styles.formHeader}>
             <h2 style={styles.formTitle}>Welcome back</h2>
-            <p style={styles.formSub}>Sign in to manage your AI workforce</p>
+            <p style={styles.formSub}>Sign in to manage your AI workers</p>
           </div>
 
           <form onSubmit={handleLogin} style={styles.form}>

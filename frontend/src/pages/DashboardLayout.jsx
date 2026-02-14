@@ -53,7 +53,7 @@ export function DashboardLayout() {
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div style={styles.logoIcon}><Bot size={16} color="#4f6ef7" /></div>
-          <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>Workforce.AI</span>
+          <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>Synthetiks</span>
         </div>
         <button className="btn btn-primary" style={{ padding: "8px 12px", fontSize: "13px" }} onClick={() => setDeployModalOpen(true)}>
           <Plus size={14} />
@@ -69,7 +69,7 @@ export function DashboardLayout() {
         <div style={styles.logo}>
           <div style={styles.logoIcon}><Bot size={18} color="#4f6ef7" /></div>
           <div>
-            <div style={styles.logoText}>Workforce.AI</div>
+            <div style={styles.logoText}>Synthetiks</div>
           </div>
           <button className="mobile-close-btn" onClick={() => setSidebarOpen(false)}>
             <X size={18} />

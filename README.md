@@ -1,4 +1,4 @@
-# Workforce.AI — AI Worker Platform
+# Synthetiks — AI Worker Platform
 
 Hire AI workers to perform real software engineering tasks powered by Claude.
 
