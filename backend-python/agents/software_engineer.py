@@ -294,19 +294,19 @@ class SoftwareEngineerAgent(BaseAgent):
         features = payload.get("features", [])
 
         system = (
-            "You are a senior software architect. Generate a complete, production-ready "
-            "multi-file project. Return ONLY valid JSON (no markdown fences, no explanation) "
-            "with this exact structure:\n"
-            '{\n'
-            '  "project_name": "my-project",\n'
-            '  "summary": "Brief description of what was built",\n'
-            '  "files": [\n'
-            '    { "path": "relative/path/file.ext", "content": "full file content", "language": "python" }\n'
-            '  ],\n'
-            '  "setup_instructions": "How to install and run"\n'
-            '}\n'
-            "Include ALL necessary files: source code, config files, requirements/package.json, "
-            "README.md, .gitignore, etc. Make the project complete and runnable."
+            "You are a senior software architect. You MUST respond with ONLY a JSON object.\n"
+            "Do NOT include markdown fences, explanations, or anything outside the JSON.\n"
+            "Do NOT wrap the JSON in ```json blocks.\n\n"
+            "The JSON must have this EXACT structure:\n"
+            '{"project_name": "my-project", "summary": "What was built", '
+            '"files": [{"path": "src/main.py", "content": "file content here", "language": "python"}], '
+            '"setup_instructions": "How to install and run"}\n\n'
+            "Rules:\n"
+            "- Include 5-10 files: source code, config, requirements.txt or package.json, README.md, .gitignore\n"
+            "- Each file's content must be the COMPLETE file content (not truncated)\n"
+            "- Use \\n for newlines inside content strings\n"
+            "- The JSON must be valid and parseable\n"
+            "- Make the project complete and runnable"
         )
 
         parts = [f"Generate a complete {language} project."]
@@ -316,15 +316,22 @@ class SoftwareEngineerAgent(BaseAgent):
         if features:
             parts.append(f"Features: {', '.join(features)}")
         parts.append(f"Preferred stack: {', '.join(self.frameworks)}")
+        parts.append("\nRespond with ONLY the JSON object. No other text.")
         prompt = "\n".join(parts)
 
-        raw = await asyncio.to_thread(_ask_claude, system, prompt, max_tokens=8192)
+        raw = await asyncio.to_thread(_ask_claude, system, prompt, max_tokens=16000)
         raw = _strip_fences(raw)
+
+        # Try to extract JSON if Claude added any preamble
+        json_start = raw.find("{")
+        json_end = raw.rfind("}") + 1
+        if json_start >= 0 and json_end > json_start:
+            raw = raw[json_start:json_end]
 
         try:
             result = json.loads(raw)
         except json.JSONDecodeError:
-            # Fallback: treat entire response as a single file
+            # Fallback: split on file markers if Claude returned plain code
             result = {
                 "project_name": "project",
                 "summary": description,
