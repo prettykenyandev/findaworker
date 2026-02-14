@@ -88,7 +88,8 @@ class SoftwareEngineerAgent(BaseAgent):
 
         system = (
             "You are a senior software engineer. Generate clean, production-ready code. "
-            "Return ONLY the code — no markdown fences, no explanation, no preamble."
+            "Return ONLY the code — no markdown fences, no explanation, no preamble. "
+            "Include all necessary imports at the top. Make the code complete and runnable."
         )
         parts = [f"Generate {code_type} in {language}."]
         if description:
@@ -102,12 +103,18 @@ class SoftwareEngineerAgent(BaseAgent):
         code = _strip_fences(code)
         lines = len(code.strip().split("\n"))
 
+        # Determine appropriate filename
+        ext_map = {"python": "py", "javascript": "js", "typescript": "ts", "sql": "sql", "java": "java", "go": "go", "rust": "rs", "ruby": "rb", "c": "c", "cpp": "cpp", "csharp": "cs"}
+        ext = ext_map.get(language, language[:2])
+        filename = f"main.{ext}"
+
         return {
             "code": code.strip(),
             "language": language,
             "lines_generated": lines,
             "type": code_type,
             "model": MODEL,
+            "files": [{"path": filename, "content": code.strip(), "language": language}],
         }
 
     # ── review_pr ────────────────────────────────────────────────────────────
@@ -302,11 +309,17 @@ class SoftwareEngineerAgent(BaseAgent):
             '"files": [{"path": "src/main.py", "content": "file content here", "language": "python"}], '
             '"setup_instructions": "How to install and run"}\n\n'
             "Rules:\n"
-            "- Include 5-10 files: source code, config, requirements.txt or package.json, README.md, .gitignore\n"
-            "- Each file's content must be the COMPLETE file content (not truncated)\n"
+            "- Include 8-15 files: source code, config, requirements.txt or package.json, README.md, .gitignore, Dockerfile\n"
+            "- Each file's content must be the COMPLETE, PRODUCTION-READY file content (not truncated, no TODO placeholders)\n"
             "- Use \\n for newlines inside content strings\n"
             "- The JSON must be valid and parseable\n"
-            "- Make the project complete and runnable"
+            "- Make the project complete, runnable, and well-structured\n"
+            "- If the user's description is vague or short (e.g. 'todo app', 'weather api'), "
+            "infer the best tech stack, architecture, and features that would make it a polished, complete project\n"
+            "- Always include: proper error handling, input validation, environment variables (.env.example), "
+            "a detailed README with setup instructions, and sensible project structure with separate modules\n"
+            "- For web apps: include routes, models/schemas, middleware, and a main entry point\n"
+            "- For APIs: include proper HTTP status codes, request/response models, and API documentation"
         )
 
         parts = [f"Generate a complete {language} project."]
@@ -315,6 +328,8 @@ class SoftwareEngineerAgent(BaseAgent):
             parts.append(f"Framework: {framework}")
         if features:
             parts.append(f"Features: {', '.join(features)}")
+        else:
+            parts.append("Infer the most useful features based on the description.")
         parts.append(f"Preferred stack: {', '.join(self.frameworks)}")
         parts.append("\nRespond with ONLY the JSON object. No other text.")
         prompt = "\n".join(parts)

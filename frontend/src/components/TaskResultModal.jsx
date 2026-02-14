@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Copy, Check, Code, FileText, Bug, GitPullRequest, TestTube, Database, RefreshCw, Clock, Cpu, FolderOpen, Download, ChevronRight, Layers } from "lucide-react";
 import JSZip from "jszip";
 
@@ -55,6 +56,22 @@ function Stat({ label, value, icon: Icon }) {
 
 /* ── per-type renderers ─────────────────────────────────────────────── */
 
+function downloadFiles(files, projectName = "code") {
+  const zip = new JSZip();
+  const root = projectName;
+  (files || []).forEach((f) => {
+    zip.file(`${root}/${f.path}`, f.content);
+  });
+  zip.generateAsync({ type: "blob" }).then((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${root}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
 function GenerateCodeResult({ result }) {
   return (
     <>
@@ -64,6 +81,15 @@ function GenerateCodeResult({ result }) {
         <Stat label="Model" value={result.model || "—"} icon={Cpu} />
       </div>
       <CodeBlock code={result.code} language={result.language} />
+      {result.files?.length > 0 && (
+        <button
+          onClick={() => downloadFiles(result.files, result.type || "code")}
+          style={projectStyles.downloadBtn}
+        >
+          <Download size={14} />
+          Download as .zip
+        </button>
+      )}
     </>
   );
 }
@@ -119,6 +145,8 @@ function ReviewPrResult({ result }) {
 }
 
 function WriteTestsResult({ result }) {
+  const ext = (result.framework === "jest") ? "js" : "py";
+  const filename = `test_suite.${ext}`;
   return (
     <>
       <div style={styles.statsRow}>
@@ -128,6 +156,13 @@ function WriteTestsResult({ result }) {
         <Stat label="Model" value={result.model || "—"} icon={Cpu} />
       </div>
       <CodeBlock code={result.test_code} language={result.framework === "jest" ? "javascript" : "python"} />
+      <button
+        onClick={() => downloadFiles([{ path: filename, content: result.test_code }], "tests")}
+        style={projectStyles.downloadBtn}
+      >
+        <Download size={14} />
+        Download as .zip
+      </button>
     </>
   );
 }
@@ -181,6 +216,13 @@ function GenerateDocsResult({ result }) {
         <CopyButton text={result.documentation} />
         <pre style={styles.docPre}>{result.documentation}</pre>
       </div>
+      <button
+        onClick={() => downloadFiles([{ path: "DOCUMENTATION.md", content: result.documentation || "" }], "docs")}
+        style={projectStyles.downloadBtn}
+      >
+        <Download size={14} />
+        Download as .zip
+      </button>
     </>
   );
 }
@@ -204,6 +246,13 @@ function RefactorResult({ result }) {
         </div>
       )}
       <CodeBlock code={result.refactored_code} language="python" />
+      <button
+        onClick={() => downloadFiles([{ path: "refactored.py", content: result.refactored_code || "" }], "refactored")}
+        style={projectStyles.downloadBtn}
+      >
+        <Download size={14} />
+        Download as .zip
+      </button>
     </>
   );
 }
@@ -216,7 +265,14 @@ function MigrationResult({ result }) {
         <Stat label="Columns" value={result.column_count || "—"} icon={FileText} />
         <Stat label="Model" value={result.model || "—"} icon={Cpu} />
       </div>
-      <CodeBlock code={result.sql} language="sql" />
+      <CodeBlock code={result.sql || result.migration_sql} language="sql" />
+      <button
+        onClick={() => downloadFiles([{ path: `migrate_${result.table || "table"}.sql`, content: result.sql || result.migration_sql || "" }], "migration")}
+        style={projectStyles.downloadBtn}
+      >
+        <Download size={14} />
+        Download as .zip
+      </button>
     </>
   );
 }
@@ -256,28 +312,18 @@ function getLangFromPath(path) {
 }
 
 function downloadProject(result) {
-  const zip = new JSZip();
   const root = result.project_name || "project";
+  const files = [...(result.files || [])];
 
-  (result.files || []).forEach((f) => {
-    zip.file(`${root}/${f.path}`, f.content);
-  });
-
+  // Add README if not already in the file list
   if (result.setup_instructions) {
-    const readme = (result.files || []).find((f) => f.path.toLowerCase() === "readme.md");
+    const readme = files.find((f) => f.path.toLowerCase() === "readme.md");
     if (!readme) {
-      zip.file(`${root}/README.md`, `# ${root}\n\n${result.summary || ""}\n\n## Setup\n\n${result.setup_instructions}\n`);
+      files.push({ path: "README.md", content: `# ${root}\n\n${result.summary || ""}\n\n## Setup\n\n${result.setup_instructions}\n` });
     }
   }
 
-  zip.generateAsync({ type: "blob" }).then((blob) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${root}.zip`;
-    a.click();
-    URL.revokeObjectURL(url);
-  });
+  downloadFiles(files, root);
 }
 
 function GenerateProjectResult({ result }) {
@@ -419,9 +465,9 @@ export function TaskResultModal({ task, agentName, onClose }) {
     ? `${((new Date(task.finished_at) - new Date(task.started_at)) / 1000).toFixed(1)}s`
     : null;
 
-  return (
+  return createPortal(
     <div style={styles.overlay} onClick={onClose}>
-      <div style={{ ...styles.modal, ...(isWide ? { width: "min(1100px, 95vw)", maxHeight: "92vh" } : {}) }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ ...styles.modal, ...(isWide ? { width: "min(1100px, 95vw)" } : {}) }} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div style={styles.modalHeader}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -456,7 +502,8 @@ export function TaskResultModal({ task, agentName, onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -470,7 +517,7 @@ const styles = {
   },
   modal: {
     background: "#fff", borderRadius: "16px",
-    width: "min(780px, 92vw)", maxHeight: "88vh",
+    width: "min(780px, 92vw)", maxHeight: "min(82vh, 800px)",
     display: "flex", flexDirection: "column",
     boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
     overflow: "hidden",

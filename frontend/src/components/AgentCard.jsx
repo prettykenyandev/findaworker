@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useStore } from "../store";
-import { Users, Code, Database, Headphones, Play, Trash2, Activity, ChevronDown, ChevronUp } from "lucide-react";
+import { Users, Code, Database, Headphones, Play, Trash2, Activity, Clock, CheckCircle, AlertCircle, Loader, Eye } from "lucide-react";
+import { TaskResultModal } from "./TaskResultModal";
+import { formatDistanceToNow } from "date-fns";
 
 const AGENT_ICONS = {
   customer_support: Headphones,
@@ -20,14 +22,51 @@ const AGENT_COLORS = {
   software_engineer: { bg: "rgba(34, 197, 94, 0.08)", color: "#22c55e" },
 };
 
+const TASK_LABELS = {
+  triage_ticket: "Triage Ticket", draft_response: "Draft Response", analyze_sentiment: "Sentiment",
+  bulk_classify: "Classify", respond_to_dm: "Reply DM", reply_to_comment: "Reply Comment",
+  handle_review: "Handle Review", social_monitor: "Monitor", extract_fields: "Extract",
+  validate_records: "Validate", transform_data: "Transform", enrich_records: "Enrich",
+  deduplicate: "Deduplicate", parse_document: "Parse Doc", generate_code: "Generate Code",
+  generate_project: "Generate Project", review_pr: "Review PR", write_tests: "Write Tests",
+  detect_bugs: "Detect Bugs", generate_docs: "Generate Docs", refactor: "Refactor",
+  generate_migration: "Migration",
+};
+
+const STATUS_ICONS = {
+  running: Loader,
+  queued: Clock,
+  completed: CheckCircle,
+  failed: AlertCircle,
+};
+
+const STATUS_COLORS = {
+  running: "#4f6ef7",
+  queued: "#8b5cf6",
+  completed: "#22c55e",
+  failed: "#ef4444",
+};
+
 export function AgentCard({ agent, compact = false, onSubmitTask }) {
-  const { terminateAgent } = useStore();
-  const [expanded, setExpanded] = useState(false);
+  const { terminateAgent, tasks } = useStore();
   const [terminating, setTerminating] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const Icon = AGENT_ICONS[agent.type] || Users;
   const colors = AGENT_COLORS[agent.type] || AGENT_COLORS.customer_support;
   const typeLabel = AGENT_LABELS[agent.type] || agent.type.replace(/_/g, " ");
+
+  // Get this agent's tasks — active first, then recent
+  const agentTasks = tasks
+    .filter((t) => t.agent_id === agent.id)
+    .sort((a, b) => {
+      const order = { running: 0, queued: 1, completed: 2, failed: 3 };
+      const diff = (order[a.status] ?? 9) - (order[b.status] ?? 9);
+      return diff !== 0 ? diff : new Date(b.created_at) - new Date(a.created_at);
+    })
+    .slice(0, 4);
+
+  const activeTasks = agentTasks.filter((t) => t.status === "running" || t.status === "queued");
 
   const uptimeHours = Math.floor(agent.uptime_seconds / 3600);
   const uptimeMins = Math.floor((agent.uptime_seconds % 3600) / 60);
@@ -111,11 +150,54 @@ export function AgentCard({ agent, compact = false, onSubmitTask }) {
         </div>
       </div>
 
-      {/* Current task */}
-      {agent.current_task && (
-        <div style={styles.currentTask}>
-          <Activity size={12} style={{ color: "var(--accent)" }} />
-          <span>Working on: <strong>{agent.current_task.replace(/_/g, " ")}</strong></span>
+      {/* Active / Recent Tasks */}
+      {agentTasks.length > 0 && (
+        <div style={styles.taskSection}>
+          <div style={styles.taskSectionHeader}>
+            {activeTasks.length > 0
+              ? <><Activity size={13} color="#4f6ef7" /> <span>Working on {activeTasks.length} task{activeTasks.length > 1 ? "s" : ""}</span></>
+              : <><CheckCircle size={13} color="var(--text-muted)" /> <span>Recent tasks</span></>
+            }
+          </div>
+          <div style={styles.taskList}>
+            {agentTasks.map((task) => {
+              const TaskIcon = STATUS_ICONS[task.status] || Clock;
+              const statusColor = STATUS_COLORS[task.status] || "var(--text-muted)";
+              const isClickable = task.result || task.error || task.status === "running";
+              return (
+                <button
+                  key={task.id}
+                  style={{
+                    ...styles.taskItem,
+                    cursor: isClickable ? "pointer" : "default",
+                    borderLeftColor: statusColor,
+                  }}
+                  onClick={() => isClickable && setSelectedTask(task)}
+                  onMouseEnter={(e) => { if (isClickable) e.currentTarget.style.background = "#f8fafc"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "#fafbfc"; }}
+                >
+                  <TaskIcon
+                    size={14}
+                    color={statusColor}
+                    className={task.status === "running" ? "animate-spin" : ""}
+                  />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={styles.taskItemName}>
+                      {TASK_LABELS[task.type] || task.type}
+                    </div>
+                    <div style={styles.taskItemMeta}>
+                      {task.status === "running" ? "In progress…" :
+                       task.status === "queued" ? "Waiting…" :
+                       formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
+                    </div>
+                  </div>
+                  {isClickable && (
+                    <Eye size={13} color="var(--text-muted)" style={{ flexShrink: 0, opacity: 0.5 }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -133,21 +215,15 @@ export function AgentCard({ agent, compact = false, onSubmitTask }) {
         >
           <Trash2 size={14} />
         </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => setExpanded(!expanded)}
-          title="View details"
-        >
-          {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
       </div>
 
-      {/* Expanded config */}
-      {expanded && (
-        <div style={styles.expandedConfig}>
-          <div style={styles.configTitle}>Settings</div>
-          <pre style={styles.configPre}>{JSON.stringify(agent.config, null, 2)}</pre>
-        </div>
+      {/* Task result modal */}
+      {selectedTask && (
+        <TaskResultModal
+          task={selectedTask}
+          agentName={agent.name}
+          onClose={() => setSelectedTask(null)}
+        />
       )}
     </div>
   );
@@ -184,22 +260,37 @@ const styles = {
   stat: { padding: "12px 8px", textAlign: "center" },
   statValue: { fontSize: "18px", fontWeight: 700, lineHeight: 1, color: "var(--text-primary)" },
   statLabel: { fontSize: "12px", fontWeight: 500, color: "var(--text-muted)", marginTop: "4px" },
-  currentTask: {
-    display: "flex", alignItems: "center", gap: "8px",
-    padding: "8px 12px",
-    background: "var(--accent-glow)",
+  taskSection: {
+    display: "flex", flexDirection: "column", gap: "8px",
+  },
+  taskSectionHeader: {
+    display: "flex", alignItems: "center", gap: "6px",
+    fontSize: "13px", fontWeight: 600, color: "var(--text-muted)",
+  },
+  taskList: {
+    display: "flex", flexDirection: "column", gap: "4px",
+  },
+  taskItem: {
+    display: "flex", alignItems: "center", gap: "10px",
+    padding: "8px 10px",
+    background: "#fafbfc",
     borderRadius: "8px",
+    border: "none",
+    borderLeft: "3px solid transparent",
     fontSize: "13px",
-    color: "var(--text-secondary)",
+    textAlign: "left",
+    width: "100%",
+    transition: "background 0.15s",
+    fontFamily: "inherit",
+  },
+  taskItemName: {
+    fontWeight: 600, color: "var(--text-primary)", fontSize: "13px",
+    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+  },
+  taskItemMeta: {
+    fontSize: "12px", color: "var(--text-muted)", marginTop: "1px",
   },
   actions: { display: "flex", gap: "8px" },
-  expandedConfig: {
-    background: "var(--bg-elevated)",
-    borderRadius: "8px",
-    padding: "14px",
-  },
-  configTitle: { fontSize: "13px", fontWeight: 600, color: "var(--text-muted)", marginBottom: "8px" },
-  configPre: { fontSize: "12px", color: "var(--text-secondary)", overflow: "auto", lineHeight: 1.7 },
   // Compact
   compactCard: {
     display: "flex", alignItems: "center", gap: "12px",

@@ -66,27 +66,97 @@ const TASK_DEFINITIONS = {
   }
 };
 
+const TASK_PLACEHOLDERS = {
+  triage_ticket: "Describe the support ticket to triage, e.g. 'Customer says they were double-charged on their last invoice'",
+  draft_response: "Describe what to respond about, e.g. 'Write a friendly reply to a customer asking for a refund on their Pro plan'",
+  analyze_sentiment: "Paste the text to analyze, e.g. 'I love your product but the support team was unhelpful and slow'",
+  bulk_classify: "Describe what to classify, e.g. 'Sort these tickets: billing issue, can't login, feature request, shipping delayed'",
+  respond_to_dm: "Paste or describe the DM to reply to, e.g. 'Customer on Twitter DM asking when their order ships'",
+  reply_to_comment: "Paste the comment to reply to, e.g. 'User on Instagram asking if we ship to Canada'",
+  handle_review: "Paste the review to respond to, e.g. '3-star Google review saying shipping was slow but product was good'",
+  social_monitor: "Describe what to monitor, e.g. 'Check mentions of our brand Acme Corp across Twitter and Instagram in the last 24 hours'",
+  extract_fields: "Describe or paste the data to extract from, e.g. 'Extract name, email, and phone from: John Doe, john@example.com, 555-0100'",
+  validate_records: "Describe the data to validate, e.g. 'Check these emails are valid: alice@test.com, bob@invalid, charlie@gmail.com'",
+  transform_data: "Describe the transformation, e.g. 'Convert these CSV records to JSON format with uppercase names'",
+  enrich_records: "Describe what to enrich, e.g. 'Add country codes to these phone numbers: 555-0100, 555-0200'",
+  deduplicate: "Describe the data to deduplicate, e.g. 'Find and merge duplicate customer records with similar names and emails'",
+  parse_document: "Describe the document to parse, e.g. 'Extract line items and totals from Invoice #1234'",
+  generate_code: "Describe what code to write, e.g. 'A Python function that validates email addresses using regex'",
+  generate_project: "Describe the project to build, e.g. 'A todo list API with FastAPI, SQLite database, and JWT authentication'",
+  review_pr: "Paste the code to review, or describe the PR, e.g. 'Review this auth middleware for security issues'",
+  write_tests: "Describe what to test, or paste the code, e.g. 'Write pytest tests for a user registration function'",
+  detect_bugs: "Paste the code to analyze, or describe the issue, e.g. 'Find bugs in this payment processing function'",
+  generate_docs: "Describe what to document, or paste the code, e.g. 'Write API docs for our /users endpoint'",
+  refactor: "Paste the code to refactor, or describe what to improve, e.g. 'Refactor this 200-line function into smaller clean functions'",
+  generate_migration: "Describe the database change, e.g. 'Create a subscriptions table with user_id, plan name, and expiry date'",
+};
+
+// Detect whether a short description sounds like a full project/app
+const PROJECT_KEYWORDS = /\b(app|application|website|web\s?app|dashboard|platform|service|api|server|saas|system|portal|marketplace|e-?commerce|blog|forum|chat|clone|full.?stack|project|site|landing|startup)\b/i;
+
+function buildPayload(taskType, agentType, description) {
+  // Software engineer tasks — description is the primary input
+  if (agentType === "software_engineer") {
+    // Auto-upgrade generate_code → generate_project when the prompt sounds like a whole app
+    if (taskType === "generate_code" && PROJECT_KEYWORDS.test(description)) {
+      return { description, language: "python", _upgraded: "generate_project" };
+    }
+    if (taskType === "generate_code") return { description, language: "python" };
+    if (taskType === "generate_project") return { description, language: "python" };
+    if (taskType === "review_pr") return { code: description };
+    if (taskType === "write_tests") return { code: description };
+    if (taskType === "detect_bugs") return { code: description, lines: description.split("\n").length };
+    if (taskType === "generate_docs") return { code: description, target: "code" };
+    if (taskType === "refactor") return { code: description };
+    if (taskType === "generate_migration") return { description };
+  }
+  // Customer support tasks
+  if (agentType === "customer_support") {
+    if (taskType === "triage_ticket") return { text: description, customer_tier: "standard" };
+    if (taskType === "draft_response") return { category: "general", customer_name: "Customer", text: description };
+    if (taskType === "analyze_sentiment") return { text: description };
+    if (taskType === "respond_to_dm") return { platform: "twitter", message: description, customer_name: "Customer" };
+    if (taskType === "reply_to_comment") return { platform: "social", comment: description, customer_name: "Customer" };
+    if (taskType === "handle_review") return { platform: "google", review: description, rating: 3, customer_name: "Customer" };
+    if (taskType === "social_monitor") return { platforms: ["twitter", "instagram"], brand_name: description, time_window_hours: 24 };
+    return { text: description };
+  }
+  // Data entry tasks
+  if (agentType === "data_entry") {
+    if (taskType === "extract_fields") return { text: description, fields: ["name", "email", "phone"] };
+    if (taskType === "validate_records") return { text: description };
+    if (taskType === "parse_document") return { content: description, document_type: "document" };
+    return { text: description };
+  }
+  return { description };
+}
+
 export function TaskSubmitModal({ agent, onClose }) {
   const { submitTask, addNotification } = useStore();
-  const def = TASK_DEFINITIONS[agent.type] || { tasks: [], defaultPayload: () => ({}) };
+  const def = TASK_DEFINITIONS[agent.type] || { tasks: [] };
   const [taskType, setTaskType] = useState(def.tasks[0] || "");
-  const [payloadStr, setPayloadStr] = useState(() => JSON.stringify(def.defaultPayload(def.tasks[0]), null, 2));
+  const [description, setDescription] = useState("");
   const [priority, setPriority] = useState(5);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleTaskTypeChange = (t) => {
-    setTaskType(t);
-    setPayloadStr(JSON.stringify(def.defaultPayload(t), null, 2));
-  };
-
   const handleSubmit = async () => {
-    let payload;
-    try { payload = JSON.parse(payloadStr); }
-    catch { addNotification({ type: "error", message: "Invalid JSON in the details field" }); return; }
+    if (!description.trim()) {
+      addNotification({ type: "error", message: "Please describe what you want done" });
+      return;
+    }
+
+    const payload = buildPayload(taskType, agent.type, description.trim());
+
+    // If buildPayload auto-upgraded the task type, use the upgraded type
+    let finalTaskType = taskType;
+    if (payload._upgraded) {
+      finalTaskType = payload._upgraded;
+      delete payload._upgraded;
+    }
 
     setSubmitting(true);
     try {
-      const result = await submitTask({ agent_id: agent.id, task_type: taskType, payload, priority });
+      await submitTask({ agent_id: agent.id, task_type: finalTaskType, payload, priority });
       addNotification({ type: "success", message: `Task assigned — ${TASK_LABELS[taskType] || taskType}` });
       onClose();
     } catch (err) {
@@ -110,7 +180,7 @@ export function TaskSubmitModal({ agent, onClose }) {
         <div style={mBody}>
           <div>
             <label className="label">Task Type</label>
-            <select className="select" value={taskType} onChange={(e) => handleTaskTypeChange(e.target.value)}>
+            <select className="select" value={taskType} onChange={(e) => setTaskType(e.target.value)}>
               {def.tasks.map(t => <option key={t} value={t}>{TASK_LABELS[t] || t}</option>)}
             </select>
           </div>
@@ -126,19 +196,20 @@ export function TaskSubmitModal({ agent, onClose }) {
             </div>
           </div>
           <div>
-            <label className="label">Details (JSON)</label>
+            <label className="label">What do you need done?</label>
             <textarea
               className="input"
-              style={{ fontSize: "12px", resize: "vertical", minHeight: "140px", fontFamily: "monospace" }}
-              value={payloadStr}
-              onChange={(e) => setPayloadStr(e.target.value)}
+              style={{ fontSize: "14px", resize: "vertical", minHeight: "120px", fontFamily: "'Inter', sans-serif", lineHeight: 1.6 }}
+              placeholder={TASK_PLACEHOLDERS[taskType] || "Describe what you want the worker to do..."}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
         </div>
 
         <div style={mFooter}>
           <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting || !taskType}>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting || !taskType || !description.trim()}>
             <Play size={14} />
             {submitting ? "Assigning..." : "Start Task"}
           </button>
