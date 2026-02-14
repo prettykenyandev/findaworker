@@ -24,6 +24,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const PYTHON_BACKEND = process.env.PYTHON_BACKEND_URL || "http://localhost:8001";
 
+// Trust proxy (required behind Railway/Render/Docker reverse proxies)
+app.set("trust proxy", 1);
+
 // ── Security & Middleware ────────────────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.FRONTEND_URL || "*", credentials: true }));
