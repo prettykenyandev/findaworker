@@ -1,7 +1,7 @@
 // ─── TaskSubmitModal ──────────────────────────────────────────────────────────
 import { useState } from "react";
 import { useStore } from "../store";
-import { X, Play } from "lucide-react";
+import { X, Play, TrendingUp } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { formatDistanceToNow } from "date-fns";
 
@@ -288,7 +288,9 @@ export function ThroughputChart({ tasks }) {
 
   tasks.forEach((t) => {
     if (!t.finished_at) return;
-    const age = (now - new Date(t.finished_at)) / 1000 / 60;
+    // Backend stores UTC timestamps without 'Z' suffix — append it so JS parses as UTC
+    const ts = t.finished_at.endsWith("Z") ? t.finished_at : t.finished_at + "Z";
+    const age = (now - new Date(ts)) / 1000 / 60;
     if (age > 60) return;
     const idx = Math.min(11, Math.floor(age / 5));
     const bucket = buckets[11 - idx];
@@ -296,9 +298,15 @@ export function ThroughputChart({ tasks }) {
     else if (t.status === "failed") bucket.failed++;
   });
 
-  const hasData = buckets.some(b => b.completed > 0);
+  const hasData = buckets.some(b => b.completed > 0 || b.failed > 0);
+
   if (!hasData) {
-    buckets.forEach((b, i) => { b.completed = Math.floor(Math.random() * 15) + 2; b.failed = Math.random() > 0.8 ? 1 : 0; });
+    return (
+      <div style={{ height: "160px", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "8px", color: "var(--text-muted)" }}>
+        <TrendingUp size={32} style={{ opacity: 0.15 }} />
+        <span style={{ fontSize: "13px" }}>No activity in the last hour</span>
+      </div>
+    );
   }
 
   return (

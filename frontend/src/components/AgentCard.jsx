@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useStore } from "../store";
 import { Users, Code, Database, Headphones, Play, Trash2, Activity, Clock, CheckCircle, AlertCircle, Loader, Eye } from "lucide-react";
 import { TaskResultModal } from "./TaskResultModal";
-import { formatDistanceToNow } from "date-fns";
 
 const AGENT_ICONS = {
   customer_support: Headphones,
@@ -188,7 +187,10 @@ export function AgentCard({ agent, compact = false, onSubmitTask }) {
                     <div style={styles.taskItemMeta}>
                       {task.status === "running" ? "In progress…" :
                        task.status === "queued" ? "Waiting…" :
-                       formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
+                       task.status === "completed" && task.started_at && task.finished_at
+                         ? `Done in ${((new Date(task.finished_at) - new Date(task.started_at)) / 1000).toFixed(1)}s`
+                         : task.status === "failed" ? "Failed"
+                         : "Done"}
                     </div>
                   </div>
                   {isClickable && (

@@ -90,6 +90,30 @@ export const useStore = create((set, get) => ({
     });
   },
 
+  // Lightweight poll — only patches tasks whose status/result actually changed
+  pollTaskStatuses: async () => {
+    try {
+      const res = await api.get("/tasks");
+      const fresh = res.data;
+      set((s) => {
+        let changed = false;
+        const merged = s.tasks.map((t) => {
+          const f = fresh.find((ft) => ft.id === t.id);
+          if (f && (f.status !== t.status || f.result !== t.result || f.error !== t.error)) {
+            changed = true;
+            return f;
+          }
+          return t;
+        });
+        // Add any new tasks not yet in store
+        const existingIds = new Set(s.tasks.map((t) => t.id));
+        const newTasks = fresh.filter((ft) => !existingIds.has(ft.id));
+        if (newTasks.length > 0) changed = true;
+        return changed ? { tasks: [...newTasks, ...merged].slice(0, 100) } : {};
+      });
+    } catch {}
+  },
+
   // ── Metrics ─────────────────────────────────────────────────────────────────
   metrics: null,
 

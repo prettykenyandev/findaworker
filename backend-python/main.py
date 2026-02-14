@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -18,10 +19,26 @@ from datetime import datetime
 from agents.customer_support import CustomerSupportAgent
 from agents.data_entry import DataEntryAgent
 from agents.software_engineer import SoftwareEngineerAgent
-from core.orchestrator import AgentOrchestrator
-from core.task_queue import TaskQueue
+from core.orchestrator_mongo import AgentOrchestrator
+from core.task_queue_mongo import TaskQueue
+from core.database import ensure_indexes, ping
 
-app = FastAPI(title="AI Workforce Platform", version="1.0.0")
+
+# ─── Lifecycle ────────────────────────────────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(app):
+    # Startup
+    if await ping():
+        print("✓ MongoDB connected")
+    else:
+        print("✗ MongoDB unreachable — check MONGODB_URI")
+    await ensure_indexes()
+    yield
+    # Shutdown (nothing to clean up — motor handles pool)
+
+
+app = FastAPI(title="AI Workforce Platform", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,7 +47,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory store (replace with Redis/DB in production)
+# MongoDB-backed stores
 orchestrator = AgentOrchestrator()
 task_queue = TaskQueue()
 active_connections: Dict[str, WebSocket] = {}
@@ -78,7 +95,7 @@ async def health():
 
 @app.get("/agents")
 async def list_agents():
-    return orchestrator.list_agents()
+    return await orchestrator.list_agents()
 
 @app.post("/agents/deploy")
 async def deploy_agent(req: DeployAgentRequest, background_tasks: BackgroundTasks):
@@ -95,7 +112,7 @@ async def deploy_agent(req: DeployAgentRequest, background_tasks: BackgroundTask
         config=req.config,
         description=req.description or f"{req.agent_type} agent"
     )
-    orchestrator.register(agent)
+    await orchestrator.register(agent)
     background_tasks.add_task(broadcast_agent_update, agent_id)
     
     return {
@@ -108,7 +125,7 @@ async def deploy_agent(req: DeployAgentRequest, background_tasks: BackgroundTask
 
 @app.delete("/agents/{agent_id}")
 async def terminate_agent(agent_id: str):
-    success = orchestrator.terminate(agent_id)
+    success = await orchestrator.terminate(agent_id)
     if not success:
         raise HTTPException(404, "Agent not found")
     return {"status": "terminated", "agent_id": agent_id}
@@ -138,26 +155,26 @@ async def submit_task(req: SubmitTaskRequest, background_tasks: BackgroundTasks)
         "result": None,
         "error": None
     }
-    task_queue.enqueue(task)
+    await task_queue.enqueue(task)
     background_tasks.add_task(process_task, task_id, agent, task)
     
     return {"task_id": task_id, "status": "queued"}
 
 @app.get("/tasks/{task_id}")
 async def get_task(task_id: str):
-    task = task_queue.get(task_id)
+    task = await task_queue.get(task_id)
     if not task:
         raise HTTPException(404, "Task not found")
     return task
 
 @app.get("/tasks")
 async def list_tasks(agent_id: Optional[str] = None, limit: int = 50):
-    return task_queue.list_tasks(agent_id=agent_id, limit=limit)
+    return await task_queue.list_tasks(agent_id=agent_id, limit=limit)
 
 @app.get("/metrics")
 async def platform_metrics():
-    agents = orchestrator.list_agents()
-    tasks = task_queue.list_tasks(limit=1000)
+    agents = await orchestrator.list_agents()
+    tasks = await task_queue.list_tasks(limit=1000)
     
     total_tasks = len(tasks)
     completed = sum(1 for t in tasks if t["status"] == "completed")
@@ -190,8 +207,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         # Send initial state
         await websocket.send_json({
             "type": "init",
-            "agents": orchestrator.list_agents(),
-            "tasks": task_queue.list_tasks(limit=20),
+            "agents": await orchestrator.list_agents(),
+            "tasks": await task_queue.list_tasks(limit=20),
             "metrics": (await platform_metrics())
         })
         while True:
@@ -214,23 +231,26 @@ async def broadcast(message: dict):
 
 async def broadcast_agent_update(agent_id: str):
     await asyncio.sleep(0.1)
-    agents = orchestrator.list_agents()
+    agents = await orchestrator.list_agents()
     await broadcast({"type": "agents_update", "agents": agents})
 
 async def process_task(task_id: str, agent, task: dict):
     await asyncio.sleep(0.05)
-    task_queue.update_status(task_id, "running")
-    await broadcast({"type": "task_update", "task": task_queue.get(task_id)})
+    await task_queue.update_status(task_id, "running")
+    await broadcast({"type": "task_update", "task": await task_queue.get(task_id)})
     
     try:
         result = await agent.execute(task["type"], task["payload"])
-        task_queue.update_status(task_id, "completed", result=result)
+        await task_queue.update_status(task_id, "completed", result=result)
         agent.increment_completed()
     except Exception as e:
-        task_queue.update_status(task_id, "failed", error=str(e))
+        await task_queue.update_status(task_id, "failed", error=str(e))
         agent.increment_failed()
     
-    final_task = task_queue.get(task_id)
+    # Sync agent counters to DB
+    await orchestrator.sync_counters(agent.agent_id, agent.tasks_completed, agent.tasks_failed)
+
+    final_task = await task_queue.get(task_id)
     await broadcast({"type": "task_update", "task": final_task})
     await broadcast({"type": "metrics_update", "metrics": (await platform_metrics())})
     await broadcast_agent_update(agent.agent_id)

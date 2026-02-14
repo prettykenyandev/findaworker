@@ -4,6 +4,7 @@ import { useStore } from "../store";
 export function useWebSocket() {
   const ws = useRef(null);
   const reconnectTimer = useRef(null);
+  const pollTimer = useRef(null);
   const clientId = useRef(`client-${Math.random().toString(36).slice(2, 8)}`);
 
   const {
@@ -11,6 +12,7 @@ export function useWebSocket() {
     updateTaskFromWs,
     updateMetricsFromWs,
     addNotification,
+    pollTaskStatuses,
     token,
   } = useStore();
 
@@ -102,6 +104,13 @@ export function useWebSocket() {
     }, 30000);
     return () => clearInterval(pingInterval);
   }, []);
+
+  // Lightweight poll — only patches task statuses, no full grid refresh
+  useEffect(() => {
+    if (!token) return;
+    pollTimer.current = setInterval(pollTaskStatuses, 5000);
+    return () => clearInterval(pollTimer.current);
+  }, [token]);
 
   useEffect(() => {
     connect();

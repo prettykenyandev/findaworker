@@ -104,8 +104,10 @@ export function TasksPage() {
           <tbody>
             {filtered.map((task) => {
               const agent = agents.find((a) => a.id === task.agent_id);
-              const duration = task.finished_at && task.started_at
-                ? `${((new Date(task.finished_at) - new Date(task.started_at)) / 1000).toFixed(1)}s`
+              const fa = task.finished_at ? (task.finished_at.endsWith("Z") ? task.finished_at : task.finished_at + "Z") : null;
+              const sa = task.started_at ? (task.started_at.endsWith("Z") ? task.started_at : task.started_at + "Z") : null;
+              const duration = fa && sa
+                ? `${((new Date(fa) - new Date(sa)) / 1000).toFixed(1)}s`
                 : task.status === "running" ? "in progress" : "—";
               
               return (
@@ -146,7 +148,7 @@ export function TasksPage() {
                   </td>
                   <td style={styles.td}>
                     <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>
-                      {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(task.created_at.endsWith("Z") ? task.created_at : task.created_at + "Z"), { addSuffix: true })}
                     </span>
                   </td>
                   <td style={styles.td}>

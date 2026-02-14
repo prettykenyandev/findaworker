@@ -10,12 +10,14 @@ const morgan = require("morgan");
 const { createProxyMiddleware, fixRequestBody } = require("http-proxy-middleware");
 const rateLimit = require("express-rate-limit");
 const { v4: uuidv4 } = require("uuid");
+require("dotenv").config();
 
 const authRouter = require("./routes/auth");
 const workforceRouter = require("./routes/workforce");
 const analyticsRouter = require("./routes/analytics");
 const { authMiddleware } = require("./middleware/auth");
 const { requestLogger } = require("./middleware/logger");
+const { connectDB } = require("./database");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -120,7 +122,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error", requestId: uuidv4() });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await connectDB();
   console.log(`✅ AI Workforce Gateway running on http://localhost:${PORT}`);
   console.log(`📡 Proxying agent calls to ${PYTHON_BACKEND}`);
 });

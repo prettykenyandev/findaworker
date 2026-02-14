@@ -8,15 +8,14 @@ import { TasksPage } from "./TasksPage";
 import { DeployModal } from "../components/DeployModal";
 import { NotificationStack } from "../components/NotificationStack";
 import {
-  LayoutDashboard, Users, ListChecks, BarChart3,
-  Zap, LogOut, Plus, Menu, X
+  LayoutDashboard, Users, ListChecks,
+  Bot, LogOut, Plus, Menu, X
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/agents", icon: Users, label: "My Workers" },
   { path: "/tasks", icon: ListChecks, label: "Activity" },
-  { path: "/analytics", icon: BarChart3, label: "Analytics" },
 ];
 
 export function DashboardLayout() {
@@ -53,7 +52,7 @@ export function DashboardLayout() {
           <Menu size={22} />
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={styles.logoIcon}><Zap size={16} color="#4f6ef7" /></div>
+          <div style={styles.logoIcon}><Bot size={16} color="#4f6ef7" /></div>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>Workforce.AI</span>
         </div>
         <button className="btn btn-primary" style={{ padding: "8px 12px", fontSize: "13px" }} onClick={() => setDeployModalOpen(true)}>
@@ -68,7 +67,7 @@ export function DashboardLayout() {
       <aside style={styles.sidebar} className={sidebarOpen ? "sidebar sidebar-open" : "sidebar"}>
         {/* Logo */}
         <div style={styles.logo}>
-          <div style={styles.logoIcon}><Zap size={18} color="#4f6ef7" /></div>
+          <div style={styles.logoIcon}><Bot size={18} color="#4f6ef7" /></div>
           <div>
             <div style={styles.logoText}>Workforce.AI</div>
           </div>
@@ -141,7 +140,6 @@ export function DashboardLayout() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/tasks" element={<TasksPage />} />
-          <Route path="/analytics" element={<Dashboard />} />
         </Routes>
       </main>
 
