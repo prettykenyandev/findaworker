@@ -20,14 +20,14 @@ export function AgentsPage() {
   const FILTER_OPTIONS = [
     { value: "all", label: "All Workers" },
     { value: "running", label: "Active" },
-    { value: "customer_support", label: "Support" },
-    { value: "data_entry", label: "Data Entry" },
+    { value: "customer_support", label: "Support", disabled: true },
+    { value: "data_entry", label: "Data Entry", disabled: true },
     { value: "software_engineer", label: "Engineering" },
   ];
 
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
+      <div style={styles.header} className="page-header">
         <div>
           <h1 style={styles.title}>My Workers</h1>
           <p style={styles.subtitle}>You have {agents.length} AI workers on your team</p>
@@ -39,7 +39,7 @@ export function AgentsPage() {
       </div>
 
       {/* Filter bar */}
-      <div style={styles.filterBar}>
+      <div style={styles.filterBar} className="filter-bar">
         <div style={styles.searchWrapper}>
           <Search size={14} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
           <input
@@ -50,15 +50,17 @@ export function AgentsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div style={styles.filterTabs}>
+        <div style={styles.filterTabs} className="filter-tabs">
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.value}
+              disabled={opt.disabled}
               style={{
                 ...styles.filterTab,
                 ...(filter === opt.value ? styles.filterTabActive : {}),
+                ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
               }}
-              onClick={() => setFilter(opt.value)}
+              onClick={() => !opt.disabled && setFilter(opt.value)}
             >
               {opt.label}
             </button>
@@ -81,7 +83,7 @@ export function AgentsPage() {
           </button>
         </div>
       ) : (
-        <div style={styles.grid}>
+        <div style={styles.grid} className="agents-grid">
           {filtered.map((agent) => (
             <AgentCard
               key={agent.id}
@@ -110,7 +112,7 @@ const styles = {
   filterTab: {
     padding: "8px 16px",
     background: "#ffffff",
-    border: "1px solid var(--border)",
+    border: "none",
     borderRadius: "20px",
     color: "var(--text-secondary)",
     fontSize: "13px",

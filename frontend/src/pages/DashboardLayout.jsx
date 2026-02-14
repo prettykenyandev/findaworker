@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "../store";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { Dashboard } from "./Dashboard";
@@ -9,7 +9,7 @@ import { DeployModal } from "../components/DeployModal";
 import { NotificationStack } from "../components/NotificationStack";
 import {
   LayoutDashboard, Users, ListChecks, BarChart3,
-  Zap, LogOut, Plus
+  Zap, LogOut, Plus, Menu, X
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -22,7 +22,12 @@ const NAV_ITEMS = [
 export function DashboardLayout() {
   const { user, logout, fetchAgents, fetchTasks, fetchMetrics, deployModalOpen, setDeployModalOpen, metrics } = useStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   useWebSocket();
+
+  // Close sidebar on route change
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   useEffect(() => {
     fetchAgents();
@@ -41,15 +46,35 @@ export function DashboardLayout() {
   };
 
   return (
-    <div style={styles.shell}>
+    <div style={styles.shell} className="app-shell">
+      {/* Mobile header */}
+      <div className="mobile-topbar">
+        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+          <Menu size={22} />
+        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={styles.logoIcon}><Zap size={16} color="#4f6ef7" /></div>
+          <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>Workforce.AI</span>
+        </div>
+        <button className="btn btn-primary" style={{ padding: "8px 12px", fontSize: "13px" }} onClick={() => setDeployModalOpen(true)}>
+          <Plus size={14} />
+        </button>
+      </div>
+
+      {/* Sidebar overlay (mobile) */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+
       {/* Sidebar */}
-      <aside style={styles.sidebar}>
+      <aside style={styles.sidebar} className={sidebarOpen ? "sidebar sidebar-open" : "sidebar"}>
         {/* Logo */}
         <div style={styles.logo}>
           <div style={styles.logoIcon}><Zap size={18} color="#4f6ef7" /></div>
           <div>
             <div style={styles.logoText}>Workforce.AI</div>
           </div>
+          <button className="mobile-close-btn" onClick={() => setSidebarOpen(false)}>
+            <X size={18} />
+          </button>
         </div>
 
         {/* User info */}
@@ -111,7 +136,7 @@ export function DashboardLayout() {
       </aside>
 
       {/* Main content */}
-      <main style={styles.main}>
+      <main style={styles.main} className="main-content">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/agents" element={<AgentsPage />} />
@@ -151,6 +176,7 @@ const styles = {
     marginBottom: "24px",
     paddingBottom: "20px",
     borderBottom: "1px solid var(--border)",
+    position: "relative",
   },
   logoIcon: {
     width: "36px",

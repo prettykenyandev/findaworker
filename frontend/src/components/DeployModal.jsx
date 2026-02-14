@@ -46,26 +46,6 @@ const TASK_LABELS = {
 
 const AGENT_TYPES = [
   {
-    id: "customer_support",
-    label: "Customer Support",
-    icon: Headphones,
-    color: "#4f6ef7",
-    colorBg: "#eef1fe",
-    description: "Handles tickets, drafts replies, manages social media conversations & reviews",
-    tasks: ["triage_ticket", "draft_response", "analyze_sentiment", "bulk_classify", "respond_to_dm", "reply_to_comment", "handle_review", "social_monitor"],
-    defaultConfig: { categories: ["billing", "technical", "general"], auto_resolve_threshold: 0.85, escalation_enabled: true, social_platforms: ["twitter", "instagram", "facebook", "tiktok", "linkedin"], social_auto_reply: true, social_tone: "friendly" },
-  },
-  {
-    id: "data_entry",
-    label: "Data Entry",
-    icon: Database,
-    color: "#8b5cf6",
-    colorBg: "#f3f0ff",
-    description: "Extracts, validates, transforms, and enriches your structured data",
-    tasks: ["extract_fields", "validate_records", "transform_data", "enrich_records", "deduplicate", "parse_document"],
-    defaultConfig: { output_format: "json", error_threshold: 0.05 },
-  },
-  {
     id: "software_engineer",
     label: "Software Engineer",
     icon: Code,
@@ -130,7 +110,7 @@ export function DeployModal({ onClose }) {
 
         {/* Step 1 - Type selection */}
         {step === 1 && (
-          <div style={styles.typeGrid}>
+          <div style={styles.typeGrid} className="deploy-type-grid">
             {AGENT_TYPES.map((type) => {
               const Icon = type.icon;
               const isSelected = selectedType === type.id;

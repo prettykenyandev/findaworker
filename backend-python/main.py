@@ -62,6 +62,8 @@ class AgentResponse(BaseModel):
 
 # ─── Agent Registry ──────────────────────────────────────────────────────────
 
+ALLOWED_AGENT_TYPES = {"software_engineer"}
+
 AGENT_CLASSES = {
     "customer_support": CustomerSupportAgent,
     "data_entry": DataEntryAgent,
@@ -82,6 +84,8 @@ async def list_agents():
 async def deploy_agent(req: DeployAgentRequest, background_tasks: BackgroundTasks):
     if req.agent_type not in AGENT_CLASSES:
         raise HTTPException(400, f"Unknown agent type: {req.agent_type}")
+    if req.agent_type not in ALLOWED_AGENT_TYPES:
+        raise HTTPException(403, f"Agent type '{req.agent_type}' is not enabled")
     
     agent_id = str(uuid.uuid4())[:8]
     AgentClass = AGENT_CLASSES[req.agent_type]

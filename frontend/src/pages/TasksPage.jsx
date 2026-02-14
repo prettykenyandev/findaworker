@@ -42,7 +42,7 @@ export function TasksPage() {
 
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
+      <div style={styles.header} className="page-header">
         <div>
           <h1 style={styles.title}>Activity</h1>
           <p style={styles.subtitle}>{tasks.length} total tasks across all workers</p>
@@ -54,7 +54,7 @@ export function TasksPage() {
       </div>
 
       {/* Status summary */}
-      <div style={styles.statusRow}>
+      <div style={styles.statusRow} className="status-row">
         {STATUS_ORDER.map((s) => (
           <button
             key={s}
@@ -87,7 +87,7 @@ export function TasksPage() {
       </div>
 
       {/* Task table */}
-      <div style={styles.tableWrapper}>
+      <div style={styles.tableWrapper} className="table-wrapper">
         <table style={styles.table}>
           <thead>
             <tr style={styles.thead}>

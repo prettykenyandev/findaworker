@@ -348,7 +348,7 @@ function GenerateProjectResult({ result }) {
       )}
 
       {/* File explorer */}
-      <div style={projectStyles.container}>
+      <div style={projectStyles.container} className="project-explorer">
         {/* Sidebar */}
         <div style={projectStyles.sidebar}>
           <div style={projectStyles.sidebarHeader}>
@@ -467,7 +467,7 @@ export function TaskResultModal({ task, agentName, onClose }) {
 
   return createPortal(
     <div style={styles.overlay} onClick={onClose}>
-      <div style={{ ...styles.modal, ...(isWide ? { width: "min(1100px, 95vw)" } : {}) }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ ...styles.modal, ...(isWide ? { width: "min(1100px, 95vw)" } : {}) }} className="result-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div style={styles.modalHeader}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

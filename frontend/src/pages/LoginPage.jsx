@@ -38,9 +38,9 @@ export function LoginPage() {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="login-container">
       {/* Left side - branding */}
-      <div style={styles.leftPanel}>
+      <div style={styles.leftPanel} className="login-left">
         <div style={styles.brandContent}>
           <div style={styles.logoRow}>
             <div style={styles.logoIcon}>
@@ -56,7 +56,7 @@ export function LoginPage() {
 
           <div style={styles.features}>
             {[
-              { icon: Users, title: "3 Worker Types", desc: "Support, Data Entry, and Engineering" },
+              { icon: Users, title: "AI Software Engineers", desc: "Code generation, PR reviews, tests & docs" },
               { icon: Clock, title: "Instant Deployment", desc: "Workers start in under a second" },
               { icon: TrendingUp, title: "99.7% Uptime", desc: "Reliable AI that works around the clock" },
             ].map(({ icon: Icon, title, desc }) => (
@@ -73,7 +73,7 @@ export function LoginPage() {
       </div>
 
       {/* Right side - form */}
-      <div style={styles.rightPanel}>
+      <div style={styles.rightPanel} className="login-right">
         <div style={styles.formCard} className="animate-fadeInUp">
           <div style={styles.formHeader}>
             <h2 style={styles.formTitle}>Welcome back</h2>

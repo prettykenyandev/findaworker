@@ -325,3 +325,191 @@ body {
 .scanlines::after {
   display: none;
 }
+
+/* ─── Mobile top bar (hidden on desktop) ─────────────────────────── */
+.mobile-topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+.mobile-menu-btn,
+.mobile-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+}
+.mobile-close-btn { display: none; margin-left: auto; }
+
+/* Sidebar overlay (mobile) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 99;
+}
+
+/* ─── Mobile Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Shell: switch from row to column */
+  .app-shell {
+    flex-direction: column !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
+  /* Show mobile topbar, hide desktop sidebar */
+  .mobile-topbar { display: flex !important; flex-shrink: 0 !important; }
+  .mobile-close-btn { display: block !important; }
+  .sidebar-overlay { display: block !important; }
+
+  /* Sidebar: slide-out drawer */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -280px !important;
+    width: 260px !important;
+    height: 100vh !important;
+    z-index: 100 !important;
+    transition: left 0.25s ease !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+  }
+  .sidebar.sidebar-open {
+    left: 0 !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.12) !important;
+  }
+
+  /* Main content: fill remaining space and scroll */
+  .main-content {
+    flex: 1 1 0% !important;
+    width: 100% !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* All pages: less padding */
+  .main-content > div {
+    padding: 16px !important;
+    gap: 16px !important;
+  }
+
+  /* Page titles smaller */
+  .main-content h1 {
+    font-size: 22px !important;
+  }
+
+  /* Page headers: stack vertically */
+  .page-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+
+  /* ─── Dashboard ─── */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .content-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ─── Agents page ─── */
+  .agents-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .filter-bar {
+    flex-wrap: wrap !important;
+  }
+  .filter-bar > div:first-child {
+    width: 100% !important;
+  }
+  .filter-tabs {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+
+  /* ─── Tasks page ─── */
+  .status-row {
+    flex-wrap: wrap !important;
+  }
+  .status-row select {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-wrapper table {
+    min-width: 650px;
+  }
+
+  /* ─── Deploy Modal ─── */
+  .deploy-type-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ─── Task Result Modal ─── */
+  .result-modal {
+    width: 95vw !important;
+    max-height: 90vh !important;
+    border-radius: 12px !important;
+  }
+  .project-explorer {
+    flex-direction: column !important;
+    height: auto !important;
+    max-height: 500px !important;
+  }
+  .project-explorer > div:first-child {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-height: 120px !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+}
+
+/* ─── Small phones ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .main-content > div {
+    padding: 12px !important;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
+/* ─── Login page mobile ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column !important;
+  }
+  .login-left {
+    padding: 32px 24px !important;
+    min-height: auto !important;
+  }
+  .login-left h1 {
+    font-size: 26px !important;
+  }
+  .login-right {
+    width: 100% !important;
+    padding: 24px !important;
+  }
+}

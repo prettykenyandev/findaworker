@@ -20,7 +20,7 @@ export function Dashboard() {
   return (
     <div style={styles.page}>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="page-header">
         <div>
           <h1 style={styles.title}>Dashboard</h1>
           <p style={styles.subtitle}>Here's what's happening with your AI workforce today</p>
@@ -34,7 +34,7 @@ export function Dashboard() {
       </div>
 
       {/* KPI Row */}
-      <div style={styles.kpiGrid}>
+      <div style={styles.kpiGrid} className="kpi-grid">
         <MetricCard
           label="Active Workers"
           value={m.agents.running}
@@ -70,7 +70,7 @@ export function Dashboard() {
       </div>
 
       {/* Main content grid */}
-      <div style={styles.contentGrid}>
+      <div style={styles.contentGrid} className="content-grid">
         {/* Left column */}
         <div style={styles.leftCol}>
           {/* Active workers */}
