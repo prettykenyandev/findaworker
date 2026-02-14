@@ -7,6 +7,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const path = require("path");
 const { createProxyMiddleware, fixRequestBody } = require("http-proxy-middleware");
 const rateLimit = require("express-rate-limit");
 const { v4: uuidv4 } = require("uuid");
@@ -25,7 +26,7 @@ const PYTHON_BACKEND = process.env.PYTHON_BACKEND_URL || "http://localhost:8001"
 
 // ── Security & Middleware ────────────────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: process.env.FRONTEND_URL || "*", credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("combined"));
 app.use(requestLogger);
@@ -110,6 +111,16 @@ app.use(
     ws: true,
   })
 );
+
+// ── Serve Frontend (production) ──────────────────────────────────────────────
+const frontendDist = path.join(__dirname, "../../frontend/dist");
+app.use(express.static(frontendDist));
+
+// SPA fallback: serve index.html for any non-API route
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/ws")) return next();
+  res.sendFile(path.join(frontendDist, "index.html"));
+});
 
 // ── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {
