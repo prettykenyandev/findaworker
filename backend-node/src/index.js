@@ -113,13 +113,19 @@ app.use(
 );
 
 // ── Serve Frontend (production) ──────────────────────────────────────────────
-const frontendDist = path.join(__dirname, "../../frontend/dist");
-app.use(express.static(frontendDist));
+// In Docker: /app/frontend/dist. Locally: ../../frontend/dist relative to src/
+const frontendDist = path.resolve(__dirname, "../frontend/dist");
+const frontendDistAlt = path.resolve(__dirname, "../../frontend/dist");
+const fs = require("fs");
+const serveDist = fs.existsSync(frontendDist) ? frontendDist : frontendDistAlt;
+app.use(express.static(serveDist));
 
 // SPA fallback: serve index.html for any non-API route
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api") || req.path.startsWith("/ws")) return next();
-  res.sendFile(path.join(frontendDist, "index.html"));
+  const index = path.join(serveDist, "index.html");
+  if (fs.existsSync(index)) return res.sendFile(index);
+  next();
 });
 
 // ── 404 Handler ──────────────────────────────────────────────────────────────
