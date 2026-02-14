@@ -1,6 +1,6 @@
-# ⚡ Workforce.AI — AI Agent Platform
+# Workforce.AI — AI Worker Platform
 
-Deploy digital workers to perform real operational tasks reliably at scale.
+Hire AI workers to perform real software engineering tasks powered by Claude.
 
 ## Architecture
 
@@ -8,13 +8,13 @@ Deploy digital workers to perform real operational tasks reliably at scale.
 ┌─────────────────────────────────────────────────────────────────┐
 │                         CLIENT LAYER                             │
 │           React Frontend (Vite) — Port 5173                     │
-│   Dashboard · Agents · Tasks · Real-time WebSocket updates      │
+│   Dashboard · Workers · Activity · Real-time polling            │
 └──────────────────────┬──────────────────────────────────────────┘
                        │ HTTP / WS (proxied)
 ┌──────────────────────▼──────────────────────────────────────────┐
 │                        API GATEWAY                               │
 │           Node.js + Express — Port 3001                         │
-│   Auth (JWT) · Rate Limiting · Helmet · Logging · Proxy         │
+│   Auth (JWT + MongoDB) · Rate Limiting · Helmet · Proxy         │
 └──────────┬──────────────────────┬───────────────────────────────┘
            │ REST proxy            │ WS proxy
 ┌──────────▼──────────────────────▼───────────────────────────────┐
@@ -23,15 +23,14 @@ Deploy digital workers to perform real operational tasks reliably at scale.
 │                                                                  │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │                   Agent Orchestrator                      │  │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌──────────────────┐  │  │
-│  │  │  Customer   │  │    Data     │  │    Software      │  │  │
-│  │  │  Support    │  │    Entry    │  │    Engineer      │  │  │
-│  │  │   Agent     │  │    Agent    │  │     Agent        │  │  │
-│  │  └─────────────┘  └─────────────┘  └──────────────────┘  │  │
+│  │               ┌──────────────────────┐                    │  │
+│  │               │   Software Engineer  │                    │  │
+│  │               │   Agent (Claude AI)  │                    │  │
+│  │               └──────────────────────┘                    │  │
 │  └───────────────────────────────────────────────────────────┘  │
 │                                                                  │
-│                      Task Queue (in-memory)                      │
-│                 WebSocket broadcast hub                          │
+│              MongoDB Atlas (tasks, agents, users)                │
+│                   WebSocket broadcast hub                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -40,68 +39,67 @@ Deploy digital workers to perform real operational tasks reliably at scale.
 ### Prerequisites
 - Node.js >= 18
 - Python >= 3.10
-- npm / pip
+- MongoDB Atlas account (free M0 tier works)
+- Anthropic API key (for Claude)
 
-### 1. Start Python Agent Backend
+### 1. Configure Environment
+
+**backend-python/.env**
+```env
+ANTHROPIC_API_KEY=your-anthropic-api-key
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/?appName=Cluster0
+```
+
+**backend-node/.env**
+```env
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/workforce?retryWrites=true&w=majority
+JWT_SECRET=your-secret-key-here
+```
+
+### 2. Start Python Agent Backend
 ```bash
 cd backend-python
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-### 2. Start Node.js API Gateway
+### 3. Start Node.js API Gateway
 ```bash
 cd backend-node
 npm install
-npm run dev
+node src/index.js
 ```
 
-### 3. Start React Frontend
+### 4. Start React Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 4. Open browser
+### 5. Open browser
 Navigate to: **http://localhost:5173**
 
-Use demo credentials: **admin@demo.com / demo1234** or click **Instant Demo Access**
+Use demo credentials or click **Instant Demo Access**.
 
 ---
 
-## Agent Types
+## Software Engineer Agent (Claude-Powered)
 
-### 🎧 Customer Support Agent
-Handles the full customer support lifecycle:
+The platform currently supports a single agent type — **Software Engineer** — powered by Claude (`claude-sonnet-4-20250514`). Tasks are described in natural language and the agent generates real code.
+
 | Task | Description |
 |------|-------------|
-| `triage_ticket` | Classify tickets by category, sentiment & priority |
-| `draft_response` | Generate contextual reply drafts |
-| `analyze_sentiment` | Score sentiment with urgency detection |
-| `bulk_classify` | Classify up to 50 tickets at once |
-
-### 🗄️ Data Entry Agent
-Structured data operations at scale:
-| Task | Description |
-|------|-------------|
-| `extract_fields` | Extract structured fields from unstructured text |
-| `validate_records` | Validate records against a JSON schema |
-| `transform_data` | Apply transformations (uppercase, lowercase, format) |
-| `enrich_records` | Enrich records with external data sources |
-| `deduplicate` | Remove duplicate records by key fields |
-| `parse_document` | Parse invoices, contracts, and forms |
-
-### 💻 Software Engineer Agent
-AI-powered development assistance:
-| Task | Description |
-|------|-------------|
-| `generate_code` | Generate REST endpoints, React components, SQL migrations |
+| `generate_code` | Generate a single file (endpoint, component, script, etc.) |
+| `generate_project` | Generate a full multi-file project with file explorer & zip download |
 | `review_pr` | Review pull requests with line-by-line comments |
-| `write_tests` | Generate unit test suites with coverage targets |
-| `detect_bugs` | Static analysis for bugs, security issues, and anti-patterns |
-| `generate_docs` | Write docstrings, READMEs, and OpenAPI specs |
+| `write_tests` | Generate unit test suites |
+| `detect_bugs` | Static analysis for bugs and security issues |
+| `generate_docs` | Write docstrings, READMEs, and API docs |
 | `refactor` | Suggest and apply code improvements |
+| `generate_migration` | Generate database migration scripts |
+
+**Smart prompt handling:** Simple prompts like "generate code" are auto-upgraded to `generate_project` when the description implies a full application. Vague prompts are enriched by the agent before sending to Claude.
 
 ---
 
@@ -118,8 +116,8 @@ POST /api/auth/refresh       # Refresh JWT token
 ### Agents
 ```
 GET    /api/agents            # List all deployed agents
-POST   /api/agents/deploy     # Deploy a new agent
-DELETE /api/agents/:id        # Terminate an agent
+POST   /api/agents/deploy     # Deploy (hire) a new worker
+DELETE /api/agents/:id        # Terminate a worker
 GET    /api/agents/:id/status # Get agent status
 ```
 
@@ -133,7 +131,6 @@ GET  /api/tasks/:id           # Get task details & result
 ### Metrics
 ```
 GET /api/metrics              # Platform-wide metrics
-GET /api/analytics/overview   # Analytics with trends
 ```
 
 ### WebSocket
@@ -141,59 +138,27 @@ GET /api/analytics/overview   # Analytics with trends
 WS /ws/:clientId              # Real-time updates
 ```
 
-WebSocket message types:
-- `init` — Full state snapshot on connect
-- `agents_update` — Agent list changed
-- `task_update` — Task status/result changed
-- `metrics_update` — Platform metrics updated
-
 ---
 
-## Environment Variables
+## Tech Stack
 
-### backend-node/.env
-```env
-PORT=3001
-PYTHON_BACKEND_URL=http://localhost:8001
-FRONTEND_URL=http://localhost:5173
-JWT_SECRET=your-secret-key-here
-NODE_ENV=development
-```
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite, Zustand, Recharts, date-fns, JSZip, Lucide icons |
+| API Gateway | Node.js, Express, http-proxy-middleware, JWT, Mongoose |
+| Agent Backend | Python, FastAPI, Uvicorn, Anthropic SDK, Motor (async MongoDB) |
+| Database | MongoDB Atlas |
+| AI Model | Claude (claude-sonnet-4-20250514) via Anthropic API |
 
-### backend-python/.env
-```env
-PORT=8001
-```
+## Key Features
 
----
-
-## Production Deployment
-
-For production, replace:
-1. **Task Queue** → Redis + Celery or BullMQ
-2. **In-memory stores** → PostgreSQL / MongoDB
-3. **JWT secrets** → Rotate and store in secrets manager
-4. **Agent execution** → Replace simulated `asyncio.sleep` with real LLM API calls (Anthropic Claude, OpenAI, etc.)
-
-### Plugging in Real AI
-In each agent's `execute()` method, replace the simulation with actual LLM calls:
-
-```python
-# In agents/customer_support.py
-import anthropic
-
-async def _triage_ticket(self, payload: dict) -> dict:
-    client = anthropic.Anthropic()
-    message = client.messages.create(
-        model="claude-opus-4-5-20251101",
-        max_tokens=1024,
-        messages=[{
-            "role": "user",
-            "content": f"Triage this support ticket: {payload['text']}\n\nClassify by: category, sentiment, priority."
-        }]
-    )
-    # Parse structured response...
-```
+- **Natural language task input** — describe what you need in plain text
+- **Multi-file project generation** — full project scaffolding with file explorer UI
+- **Zip download** — download generated projects as .zip files
+- **Real-time updates** — lightweight polling updates task status without page refresh
+- **Worker cards** — see active/recent tasks per worker with processing duration
+- **Mobile responsive** — hamburger menu, sidebar drawer, responsive grids
+- **Persistent storage** — all tasks, agents, and users stored in MongoDB Atlas
 
 ---
 
