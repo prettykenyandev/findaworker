@@ -1,9 +1,9 @@
 const COLOR_MAP = {
-  cyan: { bg: "rgba(79, 110, 247, 0.08)", icon: "#4f6ef7", text: "#4f6ef7" },
-  green: { bg: "rgba(34, 197, 94, 0.08)", icon: "#22c55e", text: "#22c55e" },
-  red: { bg: "rgba(239, 68, 68, 0.06)", icon: "#ef4444", text: "#ef4444" },
-  amber: { bg: "rgba(245, 158, 11, 0.08)", icon: "#f59e0b", text: "#f59e0b" },
-  purple: { bg: "rgba(139, 92, 246, 0.08)", icon: "#8b5cf6", text: "#8b5cf6" },
+  cyan: { bg: "rgba(0, 229, 255, 0.08)", icon: "#00e5ff", text: "#00e5ff" },
+  green: { bg: "rgba(0, 255, 136, 0.08)", icon: "#00ff88", text: "#00ff88" },
+  red: { bg: "rgba(255, 51, 102, 0.06)", icon: "#ff3366", text: "#ff3366" },
+  amber: { bg: "rgba(255, 184, 0, 0.08)", icon: "#ffb800", text: "#ffb800" },
+  purple: { bg: "rgba(168, 85, 247, 0.08)", icon: "#a855f7", text: "#a855f7" },
 };
 
 export function MetricCard({ label, value, subtitle, icon, color = "cyan", trend }) {
@@ -30,11 +30,12 @@ export function MetricCard({ label, value, subtitle, icon, color = "cyan", trend
 
 const styles = {
   card: {
-    background: "#ffffff",
+    background: "rgba(18, 24, 43, 0.85)",
     border: "1px solid var(--border)",
     borderRadius: "12px",
     padding: "20px",
-    transition: "box-shadow 0.2s",
+    backdropFilter: "blur(12px)",
+    transition: "box-shadow 0.3s, border-color 0.3s",
   },
   topRow: {
     display: "flex",

@@ -19,7 +19,7 @@ const TASK_LABELS = {
 };
 
 function getStatusColor(status) {
-  const map = { running: "#4f6ef7", queued: "#8b5cf6", completed: "#22c55e", failed: "#ef4444" };
+  const map = { running: "#00e5ff", queued: "#a855f7", completed: "#00ff88", failed: "#ff3366" };
   return map[status] || "var(--text-muted)";
 }
 
@@ -62,7 +62,7 @@ export function TasksPage() {
               ...styles.statusChip,
               borderColor: statusFilter === s ? getStatusColor(s) : "var(--border)",
               color: statusFilter === s ? getStatusColor(s) : "var(--text-secondary)",
-              background: statusFilter === s ? `${getStatusColor(s)}12` : "#ffffff",
+              background: statusFilter === s ? `${getStatusColor(s)}12` : "rgba(18, 24, 43, 0.85)",
             }}
             onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
           >
@@ -113,7 +113,7 @@ export function TasksPage() {
               return (
                 <tr key={task.id} style={{ ...styles.row, cursor: task.result || task.error ? "pointer" : "default" }}
                   onClick={() => (task.result || task.error) && setSelectedTask(task)}
-                  onMouseEnter={(e) => { if (task.result || task.error) e.currentTarget.style.background = "#f8fafc"; }}
+                  onMouseEnter={(e) => { if (task.result || task.error) e.currentTarget.style.background = "rgba(0, 229, 255, 0.04)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = ""; }}
                 >
                   <td style={styles.td}>
@@ -211,17 +211,18 @@ const styles = {
   statusChip: {
     display: "flex", alignItems: "center", gap: "8px",
     padding: "8px 14px",
-    background: "#ffffff",
+    background: "rgba(18, 24, 43, 0.85)",
     border: "1.5px solid",
     borderRadius: "20px",
     fontSize: "13px",
     fontWeight: 500,
     cursor: "pointer",
     transition: "all 0.15s",
+    color: "var(--text-primary)",
   },
   statusDot: { width: "7px", height: "7px", borderRadius: "50%" },
   statusCount: {
-    background: "#f1f3f5",
+    background: "rgba(255, 255, 255, 0.06)",
     padding: "2px 7px",
     borderRadius: "8px",
     fontSize: "12px",
@@ -229,13 +230,14 @@ const styles = {
     color: "var(--text-muted)",
   },
   tableWrapper: {
-    background: "#ffffff",
+    background: "rgba(18, 24, 43, 0.85)",
     border: "1px solid var(--border)",
     borderRadius: "12px",
     overflow: "auto",
+    backdropFilter: "blur(12px)",
   },
   table: { width: "100%", borderCollapse: "collapse" },
-  thead: { background: "#f9fafb", borderBottom: "1px solid var(--border)" },
+  thead: { background: "rgba(0, 0, 0, 0.2)", borderBottom: "1px solid var(--border)" },
   th: {
     padding: "14px 16px",
     textAlign: "left",
@@ -257,7 +259,7 @@ const styles = {
     display: "inline-flex", alignItems: "center", gap: "5px",
     padding: "5px 12px", fontSize: "12px", fontWeight: 600,
     border: "1px solid var(--border)", borderRadius: "6px",
-    background: "#fff", color: "var(--text-secondary)",
+    background: "rgba(15, 20, 35, 0.6)", color: "var(--text-secondary)",
     cursor: "pointer", transition: "all 0.15s",
     whiteSpace: "nowrap",
   },

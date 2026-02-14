@@ -361,9 +361,9 @@ function GenerateProjectResult({ result }) {
               onClick={() => setActiveIdx(i)}
               style={{
                 ...projectStyles.fileItem,
-                background: i === activeIdx ? "#4f6ef70d" : "transparent",
-                borderLeft: i === activeIdx ? "2px solid #4f6ef7" : "2px solid transparent",
-                color: i === activeIdx ? "#4f6ef7" : "var(--text-primary)",
+                background: i === activeIdx ? "rgba(0, 229, 255, 0.08)" : "transparent",
+                borderLeft: i === activeIdx ? "2px solid #00e5ff" : "2px solid transparent",
+                color: i === activeIdx ? "#00e5ff" : "var(--text-primary)",
               }}
             >
               <span style={{ fontSize: "14px", lineHeight: 1 }}>{getFileIcon(f.path)}</span>
@@ -399,7 +399,7 @@ function GenerateProjectResult({ result }) {
       {result.setup_instructions && (
         <div style={{ ...styles.section, marginTop: "16px" }}>
           <h4 style={styles.sectionTitle}>🚀 Setup Instructions</h4>
-          <pre style={{ ...styles.codeBlock, background: "#f9fafb", border: "1px solid var(--border)", borderRadius: "8px", fontSize: "13px" }}>
+          <pre style={{ ...styles.codeBlock, background: "rgba(10, 14, 26, 0.6)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "8px", fontSize: "13px" }}>
             {result.setup_instructions}
           </pre>
         </div>
@@ -472,7 +472,7 @@ export function TaskResultModal({ task, agentName, onClose }) {
         <div style={styles.modalHeader}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={styles.iconWrap}>
-              <TypeIcon size={20} color="#4f6ef7" />
+              <TypeIcon size={20} color="#00e5ff" />
             </div>
             <div>
               <h2 style={styles.modalTitle}>{typeLabel}</h2>
@@ -496,7 +496,7 @@ export function TaskResultModal({ task, agentName, onClose }) {
             <Renderer result={task.result} />
           ) : (
             <div style={styles.pending}>
-              <div className="animate-spin" style={{ width: 24, height: 24, border: "3px solid var(--border)", borderTopColor: "#4f6ef7", borderRadius: "50%" }} />
+              <div className="animate-spin" style={{ width: 24, height: 24, border: "3px solid rgba(255,255,255,0.08)", borderTopColor: "#00e5ff", borderRadius: "50%" }} />
               <p style={{ color: "var(--text-muted)", marginTop: "12px" }}>Task is still running…</p>
             </div>
           )}
@@ -516,19 +516,21 @@ const styles = {
     zIndex: 1000, backdropFilter: "blur(4px)",
   },
   modal: {
-    background: "#fff", borderRadius: "16px",
+    background: "rgba(12, 17, 30, 0.97)", borderRadius: "16px",
     width: "min(780px, 92vw)", maxHeight: "min(82vh, 800px)",
     display: "flex", flexDirection: "column",
-    boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.05)",
     overflow: "hidden",
+    border: "1px solid rgba(255,255,255,0.06)",
+    backdropFilter: "blur(20px)",
   },
   modalHeader: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "20px 24px", borderBottom: "1px solid var(--border)",
+    padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)",
   },
   iconWrap: {
     width: "40px", height: "40px", borderRadius: "10px",
-    background: "#4f6ef714", display: "flex", alignItems: "center", justifyContent: "center",
+    background: "rgba(0, 229, 255, 0.1)", display: "flex", alignItems: "center", justifyContent: "center",
   },
   modalTitle: { fontSize: "18px", fontWeight: 700, color: "var(--text-primary)", margin: 0 },
   modalSubtitle: { fontSize: "13px", color: "var(--text-muted)", margin: "2px 0 0" },
@@ -546,8 +548,8 @@ const styles = {
   },
   stat: {
     display: "flex", alignItems: "center", gap: "6px",
-    padding: "8px 14px", background: "#f9fafb", borderRadius: "8px",
-    border: "1px solid var(--border)",
+    padding: "8px 14px", background: "rgba(15, 20, 35, 0.6)", borderRadius: "8px",
+    border: "1px solid rgba(255,255,255,0.06)",
   },
 
   /* Sections */
@@ -560,42 +562,42 @@ const styles = {
 
   /* Code */
   codeWrapper: {
-    border: "1px solid var(--border)", borderRadius: "10px", overflow: "hidden",
+    border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", overflow: "hidden",
     marginBottom: "16px",
   },
   codeHeader: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "8px 14px", background: "#f6f8fa", borderBottom: "1px solid var(--border)",
+    padding: "8px 14px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)",
   },
   codeLang: { fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase" },
   codeBlock: {
     margin: 0, padding: "16px", fontSize: "13px", lineHeight: 1.6,
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
-    background: "#fafbfc", overflowX: "auto", color: "#1e293b",
+    background: "rgba(10, 14, 26, 0.6)", overflowX: "auto", color: "#e8ecf4",
     whiteSpace: "pre-wrap", wordBreak: "break-word",
   },
   copyBtn: {
     display: "flex", alignItems: "center", gap: "4px",
-    background: "none", border: "1px solid var(--border)", borderRadius: "6px",
+    background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px",
     padding: "4px 10px", fontSize: "12px", color: "var(--text-muted)",
     cursor: "pointer",
   },
 
   /* Docs */
   docBlock: {
-    position: "relative", border: "1px solid var(--border)", borderRadius: "10px",
+    position: "relative", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px",
     overflow: "hidden",
   },
   docPre: {
     margin: 0, padding: "20px", fontSize: "14px", lineHeight: 1.7,
-    fontFamily: "'Inter', sans-serif", background: "#fafbfc",
-    whiteSpace: "pre-wrap", wordBreak: "break-word", color: "#1e293b",
+    fontFamily: "'Inter', sans-serif", background: "rgba(10, 14, 26, 0.6)",
+    whiteSpace: "pre-wrap", wordBreak: "break-word", color: "#e8ecf4",
   },
 
   /* Comments / bugs */
   commentCard: {
-    padding: "12px 14px", background: "#f9fafb", borderRadius: "8px",
-    border: "1px solid var(--border)",
+    padding: "12px 14px", background: "rgba(15, 20, 35, 0.6)", borderRadius: "8px",
+    border: "1px solid rgba(255,255,255,0.06)",
   },
 
   /* Lists */
@@ -605,8 +607,8 @@ const styles = {
   /* Error */
   errorBlock: {
     display: "flex", alignItems: "flex-start", gap: "10px",
-    padding: "16px", background: "#fef2f2", border: "1px solid #fecaca",
-    borderRadius: "10px", color: "#b91c1c", fontSize: "14px",
+    padding: "16px", background: "rgba(255, 51, 102, 0.08)", border: "1px solid rgba(255, 51, 102, 0.2)",
+    borderRadius: "10px", color: "#ff3366", fontSize: "14px",
   },
 
   /* Pending */
@@ -620,16 +622,16 @@ const styles = {
 
 const projectStyles = {
   container: {
-    display: "flex", border: "1px solid var(--border)", borderRadius: "10px",
+    display: "flex", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px",
     overflow: "hidden", height: "420px",
   },
   sidebar: {
-    width: "220px", minWidth: "220px", borderRight: "1px solid var(--border)",
-    background: "#f9fafb", overflowY: "auto", display: "flex", flexDirection: "column",
+    width: "220px", minWidth: "220px", borderRight: "1px solid rgba(255,255,255,0.06)",
+    background: "rgba(10, 14, 26, 0.6)", overflowY: "auto", display: "flex", flexDirection: "column",
   },
   sidebarHeader: {
     display: "flex", alignItems: "center", gap: "6px",
-    padding: "12px 14px", borderBottom: "1px solid var(--border)",
+    padding: "12px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)",
   },
   fileItem: {
     display: "flex", alignItems: "center", gap: "8px",
@@ -639,24 +641,25 @@ const projectStyles = {
   },
   viewer: {
     flex: 1, display: "flex", flexDirection: "column", overflow: "hidden",
-    background: "#fafbfc",
+    background: "rgba(10, 14, 26, 0.4)",
   },
   viewerHeader: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "10px 16px", borderBottom: "1px solid var(--border)",
-    background: "#f6f8fa", flexShrink: 0,
+    padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)",
+    background: "rgba(0,0,0,0.2)", flexShrink: 0,
   },
   code: {
     margin: 0, padding: "16px", fontSize: "13px", lineHeight: 1.6,
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
     overflowY: "auto", overflowX: "auto", flex: 1,
-    color: "#1e293b", whiteSpace: "pre", tabSize: 2,
+    color: "#e8ecf4", whiteSpace: "pre", tabSize: 2,
   },
   downloadBtn: {
     display: "inline-flex", alignItems: "center", gap: "6px",
     padding: "10px 20px", marginTop: "16px",
-    background: "#4f6ef7", color: "#fff", border: "none",
+    background: "linear-gradient(135deg, #00e5ff, #00b8d4)", color: "#0a0e1a", border: "none",
     borderRadius: "8px", fontSize: "13px", fontWeight: 600,
-    cursor: "pointer", transition: "background 0.15s",
+    cursor: "pointer", transition: "all 0.15s",
+    boxShadow: "0 0 20px rgba(0,229,255,0.2)",
   },
 };

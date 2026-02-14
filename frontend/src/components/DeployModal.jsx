@@ -50,7 +50,7 @@ const AGENT_TYPES = [
     label: "Software Engineer",
     icon: Code,
     color: "#22c55e",
-    colorBg: "#f0fdf4",
+    colorBg: "rgba(0, 255, 136, 0.08)",
     description: "Generates code, reviews PRs, writes tests, and finds bugs for you",
     tasks: ["generate_code", "generate_project", "review_pr", "write_tests", "detect_bugs", "generate_docs", "refactor"],
     defaultConfig: { languages: ["python", "typescript"], test_coverage_target: 80 },
@@ -119,8 +119,8 @@ export function DeployModal({ onClose }) {
                   key={type.id}
                   style={{
                     ...styles.typeCard,
-                    borderColor: isSelected ? type.color : "var(--border)",
-                    background: isSelected ? type.colorBg : "#ffffff",
+                    borderColor: isSelected ? type.color : "rgba(255,255,255,0.06)",
+                    background: isSelected ? type.colorBg : "rgba(18, 24, 43, 0.6)",
                   }}
                   onClick={() => setSelectedType(type.id)}
                 >
@@ -238,11 +238,12 @@ const styles = {
   },
   modal: {
     width: "100%", maxWidth: "680px",
-    background: "#ffffff",
-    border: "1px solid var(--border)",
+    background: "rgba(12, 17, 30, 0.97)",
+    border: "1px solid rgba(255,255,255,0.06)",
     borderRadius: "16px",
-    boxShadow: "0 24px 48px rgba(0,0,0,0.12)",
+    boxShadow: "0 24px 48px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.05)",
     overflow: "hidden",
+    backdropFilter: "blur(20px)",
   },
   header: {
     display: "flex", alignItems: "flex-start", justifyContent: "space-between",
@@ -291,17 +292,17 @@ const styles = {
   selectedCheck: {
     position: "absolute", top: "12px", right: "12px",
     width: "24px", height: "24px",
-    background: "#f0fdf4", border: "2px solid #22c55e",
+    background: "rgba(0, 255, 136, 0.1)", border: "2px solid #00ff88",
     borderRadius: "50%",
     display: "flex", alignItems: "center", justifyContent: "center",
-    color: "#22c55e",
+    color: "#00ff88",
   },
   configForm: { display: "flex", flexDirection: "column", gap: "18px", padding: "24px 28px" },
   footer: {
     display: "flex", alignItems: "center", gap: "12px",
     padding: "18px 28px",
-    borderTop: "1px solid var(--border)",
-    background: "#f9fafb",
+    borderTop: "1px solid rgba(255,255,255,0.06)",
+    background: "rgba(0,0,0,0.2)",
   },
   successState: {
     display: "flex", flexDirection: "column", alignItems: "center",
@@ -309,10 +310,10 @@ const styles = {
   },
   successIcon: {
     width: "64px", height: "64px",
-    background: "#f0fdf4", border: "2px solid #22c55e",
+    background: "rgba(0, 255, 136, 0.1)", border: "2px solid #00ff88",
     borderRadius: "50%",
     display: "flex", alignItems: "center", justifyContent: "center",
   },
-  successText: { fontSize: "22px", fontWeight: 700, color: "#22c55e" },
+  successText: { fontSize: "22px", fontWeight: 700, color: "#00ff88" },
   successSub: { fontSize: "14px", color: "var(--text-secondary)" },
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../store";
-import { Zap, ArrowRight, Shield, Users, Clock, TrendingUp } from "lucide-react";
+import { Bot, ArrowRight, Shield, Users, Clock, TrendingUp } from "lucide-react";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -44,7 +44,7 @@ export function LoginPage() {
         <div style={styles.brandContent}>
           <div style={styles.logoRow}>
             <div style={styles.logoIcon}>
-              <Zap size={24} color="#4f6ef7" />
+              <Bot size={24} color="#00e5ff" />
             </div>
             <span style={styles.logoText}>Synthetiks</span>
           </div>
@@ -61,7 +61,7 @@ export function LoginPage() {
               { icon: TrendingUp, title: "99.7% Uptime", desc: "Reliable AI that works around the clock" },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} style={styles.featureRow}>
-                <div style={styles.featureIcon}><Icon size={18} color="#4f6ef7" /></div>
+                <div style={styles.featureIcon}><Icon size={18} color="#00e5ff" /></div>
                 <div>
                   <div style={styles.featureTitle}>{title}</div>
                   <div style={styles.featureDesc}>{desc}</div>
@@ -150,15 +150,16 @@ const styles = {
   container: {
     minHeight: "100vh",
     display: "flex",
-    background: "#ffffff",
+    background: "#0a0e1a",
   },
   leftPanel: {
     flex: 1,
-    background: "linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%)",
+    background: "linear-gradient(135deg, #0d1224 0%, #111832 50%, #0a0e1a 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     padding: "60px",
+    borderRight: "1px solid rgba(255,255,255,0.04)",
   },
   brandContent: {
     maxWidth: "480px",
@@ -172,27 +173,28 @@ const styles = {
   logoIcon: {
     width: "40px",
     height: "40px",
-    background: "rgba(79, 110, 247, 0.1)",
+    background: "rgba(0, 229, 255, 0.1)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    boxShadow: "0 0 20px rgba(0,229,255,0.15)",
   },
   logoText: {
     fontSize: "20px",
     fontWeight: 700,
-    color: "#1a202c",
+    color: "#e8ecf4",
   },
   heroTitle: {
     fontSize: "36px",
     fontWeight: 800,
-    color: "#1a202c",
+    color: "#e8ecf4",
     lineHeight: 1.2,
     marginBottom: "16px",
   },
   heroSub: {
     fontSize: "16px",
-    color: "#5a6578",
+    color: "rgba(255,255,255,0.5)",
     lineHeight: 1.7,
     marginBottom: "40px",
   },
@@ -209,21 +211,22 @@ const styles = {
   featureIcon: {
     width: "40px",
     height: "40px",
-    background: "rgba(79, 110, 247, 0.08)",
+    background: "rgba(0, 229, 255, 0.08)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    border: "1px solid rgba(0,229,255,0.12)",
   },
   featureTitle: {
     fontSize: "15px",
     fontWeight: 700,
-    color: "#1a202c",
+    color: "#e8ecf4",
   },
   featureDesc: {
     fontSize: "14px",
-    color: "#5a6578",
+    color: "rgba(255,255,255,0.45)",
     marginTop: "2px",
   },
   rightPanel: {
@@ -233,6 +236,7 @@ const styles = {
     justifyContent: "center",
     padding: "40px",
     flexShrink: 0,
+    background: "rgba(12, 17, 30, 0.6)",
   },
   formCard: {
     width: "100%",
@@ -244,11 +248,11 @@ const styles = {
   formTitle: {
     fontSize: "24px",
     fontWeight: 700,
-    color: "#1a202c",
+    color: "#e8ecf4",
   },
   formSub: {
     fontSize: "14px",
-    color: "#5a6578",
+    color: "rgba(255,255,255,0.5)",
     marginTop: "4px",
   },
   form: {
@@ -261,10 +265,10 @@ const styles = {
     alignItems: "center",
     gap: "8px",
     padding: "12px 14px",
-    background: "rgba(239, 68, 68, 0.06)",
-    border: "1px solid rgba(239, 68, 68, 0.15)",
+    background: "rgba(255, 51, 102, 0.08)",
+    border: "1px solid rgba(255, 51, 102, 0.2)",
     borderRadius: "10px",
-    color: "#ef4444",
+    color: "#ff3366",
     fontSize: "13px",
   },
   divider: {
@@ -276,15 +280,15 @@ const styles = {
   dividerLine: {
     flex: 1,
     height: "1px",
-    background: "#e5e7eb",
+    background: "rgba(255,255,255,0.08)",
   },
   dividerText: {
-    color: "#94a3b8",
+    color: "rgba(255,255,255,0.3)",
     fontSize: "13px",
   },
   demoHint: {
     textAlign: "center",
-    color: "#94a3b8",
+    color: "rgba(255,255,255,0.3)",
     fontSize: "13px",
     marginTop: "16px",
   },

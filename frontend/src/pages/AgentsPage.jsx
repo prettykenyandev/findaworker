@@ -111,8 +111,8 @@ const styles = {
   filterTabs: { display: "flex", gap: "6px" },
   filterTab: {
     padding: "8px 16px",
-    background: "#ffffff",
-    border: "none",
+    background: "rgba(18, 24, 43, 0.6)",
+    border: "1px solid rgba(255,255,255,0.06)",
     borderRadius: "20px",
     color: "var(--text-secondary)",
     fontSize: "13px",
@@ -121,13 +121,13 @@ const styles = {
     transition: "all 0.15s",
   },
   filterTabActive: {
-    background: "var(--accent-glow)",
-    color: "var(--accent)",
-    borderColor: "var(--accent)",
+    background: "rgba(0, 229, 255, 0.1)",
+    color: "#00e5ff",
+    borderColor: "rgba(0, 229, 255, 0.3)",
     fontWeight: 600,
   },
   grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "16px" },
   loadingGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "16px" },
-  skeleton: { height: "220px", background: "#ffffff", border: "1px solid var(--border)", borderRadius: "12px", animation: "shimmer 1.5s ease infinite" },
+  skeleton: { height: "220px", background: "rgba(18, 24, 43, 0.6)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", animation: "shimmer 1.5s ease infinite" },
   empty: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px", textAlign: "center" },
 };

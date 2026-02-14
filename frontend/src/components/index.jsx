@@ -268,8 +268,8 @@ export function TaskFeed({ tasks }) {
 
 const feedItem = {
   padding: "12px 14px",
-  background: "#ffffff",
-  border: "1px solid var(--border)",
+  background: "rgba(18, 24, 43, 0.6)",
+  border: "1px solid rgba(255,255,255,0.06)",
   borderRadius: "10px",
   cursor: "default",
   transition: "border-color 0.15s",
@@ -326,8 +326,8 @@ export function ThroughputChart({ tasks }) {
           <XAxis dataKey="time" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
           <Tooltip
-            contentStyle={{ background: "#ffffff", border: "1px solid var(--border)", borderRadius: "10px", fontSize: "12px" }}
-            labelStyle={{ color: "var(--text-secondary)" }}
+            contentStyle={{ background: "rgba(12, 17, 30, 0.95)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", fontSize: "12px", backdropFilter: "blur(12px)" }}
+            labelStyle={{ color: "rgba(255,255,255,0.5)" }}
           />
           <Area type="monotone" dataKey="completed" stroke="var(--accent)" strokeWidth={2} fill="url(#gcCompleted)" />
           <Area type="monotone" dataKey="failed" stroke="var(--red)" strokeWidth={1.5} fill="url(#gcFailed)" />
@@ -372,18 +372,19 @@ const overlayStyle = {
 };
 const modalStyle = {
   width: "100%",
-  background: "#ffffff",
-  border: "1px solid var(--border)",
+  background: "rgba(12, 17, 30, 0.97)",
+  border: "1px solid rgba(255,255,255,0.06)",
   borderRadius: "16px",
-  boxShadow: "0 24px 48px rgba(0,0,0,0.12)",
+  boxShadow: "0 24px 48px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.05)",
   overflow: "hidden",
+  backdropFilter: "blur(20px)",
 };
 const mHeader = { display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "24px 24px 0" };
 const mTitle = { fontSize: "18px", fontWeight: 700, color: "var(--text-primary)" };
 const mSub = { fontSize: "13px", color: "var(--text-muted)", marginTop: "4px" };
 const closeBtn = { background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "6px", borderRadius: "8px" };
 const mBody = { display: "flex", flexDirection: "column", gap: "16px", padding: "20px 24px" };
-const mFooter = { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px", padding: "18px 24px", borderTop: "1px solid var(--border)", background: "#f9fafb" };
+const mFooter = { display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px", padding: "18px 24px", borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.2)" };
 const notifContainer = { position: "fixed", bottom: "20px", right: "20px", zIndex: 2000, display: "flex", flexDirection: "column", gap: "8px", width: "360px" };
-const notifItem = { display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", background: "#ffffff", border: "1px solid var(--border)", borderLeft: "4px solid", borderRadius: "12px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" };
+const notifItem = { display: "flex", alignItems: "center", gap: "12px", padding: "14px 16px", background: "rgba(12, 17, 30, 0.95)", border: "1px solid rgba(255,255,255,0.08)", borderLeft: "4px solid", borderRadius: "12px", boxShadow: "0 4px 16px rgba(0,0,0,0.3)", backdropFilter: "blur(12px)" };
 const notifClose = { background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px", flexShrink: 0 };

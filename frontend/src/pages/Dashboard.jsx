@@ -186,10 +186,11 @@ const styles = {
     flexDirection: "column",
   },
   section: {
-    background: "#ffffff",
+    background: "rgba(18, 24, 43, 0.85)",
     border: "1px solid var(--border)",
     borderRadius: "12px",
     padding: "20px",
+    backdropFilter: "blur(12px)",
   },
   sectionHeader: {
     display: "flex",

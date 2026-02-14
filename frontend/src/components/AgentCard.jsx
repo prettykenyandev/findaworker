@@ -16,9 +16,9 @@ const AGENT_LABELS = {
 };
 
 const AGENT_COLORS = {
-  customer_support: { bg: "rgba(79, 110, 247, 0.08)", color: "#4f6ef7" },
-  data_entry: { bg: "rgba(139, 92, 246, 0.08)", color: "#8b5cf6" },
-  software_engineer: { bg: "rgba(34, 197, 94, 0.08)", color: "#22c55e" },
+  customer_support: { bg: "rgba(0, 229, 255, 0.08)", color: "#00e5ff" },
+  data_entry: { bg: "rgba(168, 85, 247, 0.08)", color: "#a855f7" },
+  software_engineer: { bg: "rgba(0, 255, 136, 0.08)", color: "#00ff88" },
 };
 
 const TASK_LABELS = {
@@ -40,10 +40,10 @@ const STATUS_ICONS = {
 };
 
 const STATUS_COLORS = {
-  running: "#4f6ef7",
-  queued: "#8b5cf6",
-  completed: "#22c55e",
-  failed: "#ef4444",
+  running: "#00e5ff",
+  queued: "#a855f7",
+  completed: "#00ff88",
+  failed: "#ff3366",
 };
 
 export function AgentCard({ agent, compact = false, onSubmitTask }) {
@@ -154,7 +154,7 @@ export function AgentCard({ agent, compact = false, onSubmitTask }) {
         <div style={styles.taskSection}>
           <div style={styles.taskSectionHeader}>
             {activeTasks.length > 0
-              ? <><Activity size={13} color="#4f6ef7" /> <span>Working on {activeTasks.length} task{activeTasks.length > 1 ? "s" : ""}</span></>
+              ? <><Activity size={13} color="#00e5ff" /> <span>Working on {activeTasks.length} task{activeTasks.length > 1 ? "s" : ""}</span></>
               : <><CheckCircle size={13} color="var(--text-muted)" /> <span>Recent tasks</span></>
             }
           </div>
@@ -172,8 +172,8 @@ export function AgentCard({ agent, compact = false, onSubmitTask }) {
                     borderLeftColor: statusColor,
                   }}
                   onClick={() => isClickable && setSelectedTask(task)}
-                  onMouseEnter={(e) => { if (isClickable) e.currentTarget.style.background = "#f8fafc"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "#fafbfc"; }}
+                  onMouseEnter={(e) => { if (isClickable) e.currentTarget.style.background = "rgba(0, 229, 255, 0.04)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15, 20, 35, 0.6)"; }}
                 >
                   <TaskIcon
                     size={14}
@@ -233,14 +233,15 @@ export function AgentCard({ agent, compact = false, onSubmitTask }) {
 
 const styles = {
   card: {
-    background: "#ffffff",
+    background: "rgba(18, 24, 43, 0.85)",
     border: "1px solid var(--border)",
     borderRadius: "12px",
     padding: "20px",
     display: "flex",
     flexDirection: "column",
     gap: "16px",
-    transition: "box-shadow 0.2s, border-color 0.2s",
+    backdropFilter: "blur(12px)",
+    transition: "box-shadow 0.3s, border-color 0.3s",
   },
   cardHeader: { display: "flex", alignItems: "center", gap: "12px" },
   agentIcon: {
@@ -275,7 +276,7 @@ const styles = {
   taskItem: {
     display: "flex", alignItems: "center", gap: "10px",
     padding: "8px 10px",
-    background: "#fafbfc",
+    background: "rgba(15, 20, 35, 0.6)",
     borderRadius: "8px",
     border: "none",
     borderLeft: "3px solid transparent",
@@ -284,6 +285,7 @@ const styles = {
     width: "100%",
     transition: "background 0.15s",
     fontFamily: "inherit",
+    color: "var(--text-primary)",
   },
   taskItemName: {
     fontWeight: 600, color: "var(--text-primary)", fontSize: "13px",
@@ -299,6 +301,7 @@ const styles = {
     padding: "12px 16px",
     background: "var(--bg-elevated)",
     borderRadius: "10px",
+    border: "1px solid var(--border)",
     transition: "background 0.2s",
   },
   compactIcon: {

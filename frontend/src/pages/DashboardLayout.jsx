@@ -52,7 +52,7 @@ export function DashboardLayout() {
           <Menu size={22} />
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={styles.logoIcon}><Bot size={16} color="#4f6ef7" /></div>
+          <div style={styles.logoIcon}><Bot size={16} color="#00e5ff" /></div>
           <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--text-primary)" }}>Synthetiks</span>
         </div>
         <button className="btn btn-primary" style={{ padding: "8px 12px", fontSize: "13px" }} onClick={() => setDeployModalOpen(true)}>
@@ -67,7 +67,7 @@ export function DashboardLayout() {
       <aside style={styles.sidebar} className={sidebarOpen ? "sidebar sidebar-open" : "sidebar"}>
         {/* Logo */}
         <div style={styles.logo}>
-          <div style={styles.logoIcon}><Bot size={18} color="#4f6ef7" /></div>
+          <div style={styles.logoIcon}><Bot size={18} color="#00e5ff" /></div>
           <div>
             <div style={styles.logoText}>Synthetiks</div>
           </div>
@@ -160,7 +160,8 @@ const styles = {
   sidebar: {
     width: "240px",
     flexShrink: 0,
-    background: "#ffffff",
+    background: "rgba(12, 17, 30, 0.95)",
+    backdropFilter: "blur(16px)",
     borderRight: "1px solid var(--border)",
     display: "flex",
     flexDirection: "column",
@@ -179,12 +180,13 @@ const styles = {
   logoIcon: {
     width: "36px",
     height: "36px",
-    background: "rgba(79, 110, 247, 0.08)",
+    background: "rgba(0, 229, 255, 0.08)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 0 12px rgba(0, 229, 255, 0.1)",
   },
   logoText: {
     fontSize: "17px",
@@ -203,14 +205,14 @@ const styles = {
   userAvatar: {
     width: "32px",
     height: "32px",
-    background: "linear-gradient(135deg, #4f6ef7, #7c3aed)",
+    background: "linear-gradient(135deg, #00e5ff, #a855f7)",
     borderRadius: "8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "14px",
     fontWeight: 700,
-    color: "#ffffff",
+    color: "#0a0e1a",
     flexShrink: 0,
   },
   userInfo: {},
